@@ -1,4 +1,4 @@
-"""Customer and Consent Pydantic v2 schemas."""
+"""Customer, Consent, and Excel/CSV Import Pydantic v2 schemas."""
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -117,3 +117,30 @@ class CustomerHistoryResponse(BaseModel):
     consent_history: list[ConsentRecordResponse]
     messages: list[dict]
     conversations: list[dict]
+
+
+class EligibleRecipientItem(BaseModel):
+    customer_id: int
+    phone_number: str
+    name: Optional[str] = None
+    marketing_consent: bool
+    consent_method: Optional[str] = None
+    consent_source: Optional[str] = None
+    consent_evidence: Optional[str] = None
+
+
+class CustomerImportSummaryResponse(BaseModel):
+    """Summary returned after importing an Excel (.xlsx) or CSV (.csv) contact file."""
+
+    filename: str
+    total_imported: int
+    valid_phone_numbers: int
+    invalid_phone_numbers: int
+    duplicate_contacts: int
+    missing_consent: int
+    opted_out_contacts: int
+    eligible_contacts: int
+    eligible_recipients: list[EligibleRecipientItem] = Field(default_factory=list)
+    remaining_24h_portfolio_capacity: int = 250
+    messages_sent_automatically: int = 0
+    campaign_preview: Optional[dict] = None

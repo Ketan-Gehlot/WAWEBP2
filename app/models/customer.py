@@ -12,7 +12,7 @@ def utcnow() -> datetime:
 
 
 class Customer(Base):
-    """Represents a Kanti Auto Parts customer and their explicit WhatsApp consent profile."""
+    """Represents a Maxis Gold Jewellery customer and their explicit WhatsApp consent profile."""
 
     __tablename__ = "customers"
 

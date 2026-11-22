@@ -35,6 +35,7 @@ def db_session(monkeypatch: pytest.MonkeyPatch) -> Generator[Session, None, None
     monkeypatch.setattr(settings, "ACCOUNT_QUALITY_STATUS", "GREEN")
     monkeypatch.setattr(settings, "MAX_MESSAGES_PER_MINUTE", 30)
     monkeypatch.setattr(settings, "MAX_DAILY_MESSAGES", 250)
+    monkeypatch.setattr(settings, "META_24H_UNIQUE_RECIPIENT_LIMIT", 250)
 
     outbound_rate_limiter.reset()
 

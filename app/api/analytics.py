@@ -129,7 +129,7 @@ def get_analytics_dashboard(
         "account_quality_status": state.account_quality_status,
         "enable_outbound_messages": settings.ENABLE_OUTBOUND_MESSAGES,
         "dry_run": settings.DRY_RUN,
-        "rate_limits": outbound_rate_limiter.get_usage_snapshot(),
+        "rate_limits": outbound_rate_limiter.get_usage_snapshot(db=db),
     }
 
     return AnalyticsSummaryResponse(

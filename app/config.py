@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     )
 
     APP_ENV: Literal["development", "testing", "staging", "production"] = "development"
-    APP_NAME: str = "KAP WhatsApp Automation"
+    APP_NAME: str = "Maxis Gold Jewellery WhatsApp Automation"
     APP_DEBUG: bool = False
 
     DATABASE_URL: str = "sqlite:///./kap_whatsapp.db"
@@ -44,12 +44,13 @@ class Settings(BaseSettings):
     # Conservative Rate & Volume Limits
     MAX_MESSAGES_PER_MINUTE: int = Field(default=30, ge=1, le=1000)
     MAX_DAILY_MESSAGES: int = Field(default=250, ge=1, le=100000)
+    META_24H_UNIQUE_RECIPIENT_LIMIT: int = Field(default=250, ge=1, le=1000000)
     MAX_CAMPAIGN_RECIPIENTS: int = Field(default=500, ge=1, le=10000)
 
-    # Kanti Auto Parts Business Configuration
-    BUSINESS_NAME: str = "Kanti Auto Parts"
+    # Maxis Gold Jewellery Business Configuration
+    BUSINESS_NAME: str = "Maxis Gold Jewellery"
     BUSINESS_GREETING: str = (
-        "Hello! Welcome to Kanti Auto Parts. How can we help you today?"
+        "Hello! Welcome to Maxis Gold Jewellery. How can we help you today?"
     )
     BUSINESS_HOURS_START: str = "09:00"
     BUSINESS_HOURS_END: str = "18:00"

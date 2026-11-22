@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: kap-whatsapp-automation
+    name: maxis-gold-jewellery-whatsapp
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
@@ -10,7 +10,7 @@ services:
       - key: APP_ENV
         value: production
       - key: APP_NAME
-        value: KAP WhatsApp Automation
+        value: Maxis Gold Jewellery WhatsApp Automation
       - key: APP_DEBUG
         value: "false"
       - key: DATABASE_URL

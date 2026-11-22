@@ -1,7 +1,7 @@
-# KAP WhatsApp Automation Platform
-### Production-Ready Python Backend for Kanti Auto Parts (KAP) Using Official Meta WhatsApp Cloud API
+# Maxis Gold Jewellery — WhatsApp Automation Platform
+### Production-Ready Python Backend for Maxis Gold Jewellery Using Official Meta WhatsApp Cloud API
 
-A centralized, compliance-first WhatsApp Business Platform backend engineered for **Kanti Auto Parts (KAP)**. It integrates **exclusively** with the official **Meta WhatsApp Cloud API** (`https://graph.facebook.com/{version}/{phone_number_id}/messages`).
+A centralized, compliance-first WhatsApp Business Platform backend engineered for **Maxis Gold Jewellery**. It integrates **exclusively** with the official **Meta WhatsApp Cloud API** (`https://graph.facebook.com/{version}/{phone_number_id}/messages`).
 
 > **Non-Negotiable Compliance Principle**: Every outbound message—whether initiated by an administrative endpoint, automated customer support rule, scheduled task, or campaign—passes through the centralized `ComplianceEngine` (`app/core/compliance.py`). Any message lacking verifiable consent, violating the 24-hour customer service window, referencing an unapproved template, targeting an opted-out customer, or exceeding conservative sending limits is **blocked immediately** and logged with its rejection reason.
 

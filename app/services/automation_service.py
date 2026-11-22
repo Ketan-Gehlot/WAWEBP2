@@ -1,13 +1,12 @@
 """
-Automated Customer Support Engine for Kanti Auto Parts (KAP).
+Automated Customer Support Engine for Maxis Gold Jewellery.
 
 Handles:
 - Configurable business greeting
 - Keyword-based routing & FAQ responses
-- Product inquiry handling (asks for vehicle model and year; never invents stock or prices)
-- Location & operating hours inquiry handling
+- Jewellery product & gold rate inquiry handling (never invents live gold rates, stock, or prices)
+- Showroom location & operating hours inquiry handling
 - Order inquiry handling (escalates to human agent; never fabricates order status)
-- Business hours awareness
 - Human agent escalation
 - Strict compliance: all automated replies pass through MessageService -> ComplianceEngine
 - Never autonomously initiates marketing campaigns.
@@ -27,41 +26,53 @@ from app.schemas.message import MessageSendRequest
 from app.services.consent_service import ConsentService, is_opt_out_message
 from app.services.message_service import MessageService
 
-AUTO_PARTS_CATALOG_KEYWORDS = [
-    "brake pads",
-    "brake pad",
-    "brake disc",
-    "brake rotor",
-    "brakes",
-    "oil filter",
-    "air filter",
-    "fuel filter",
-    "cabin filter",
-    "spark plug",
-    "spark plugs",
-    "clutch plate",
-    "clutch kit",
-    "clutch",
-    "shock absorber",
-    "suspension",
-    "headlight",
-    "taillight",
-    "wiper blade",
-    "battery",
-    "alternator",
-    "radiator",
-    "starter motor",
-    "timing belt",
-    "water pump",
-    "gasket",
-    "bearing",
+JEWELLERY_CATALOG_KEYWORDS = [
+    "bridal necklace",
+    "bridal necklaces",
+    "gold necklace",
+    "gold necklaces",
+    "necklace",
+    "necklaces",
+    "bridal jewellery",
+    "bridal jewelry",
+    "bridal set",
+    "mangalsutra",
+    "gold ring",
+    "gold rings",
+    "diamond ring",
+    "ring",
+    "rings",
+    "gold bangle",
+    "gold bangles",
+    "bangle",
+    "bangles",
+    "bracelet",
+    "bracelets",
+    "earrings",
+    "earring",
+    "jhumka",
+    "gold chain",
+    "chain",
+    "pendant",
+    "polki",
+    "kundan",
+    "diamond",
+    "gold coin",
+    "gold coins",
+    "22k",
+    "24k",
+    "18k",
+    "hallmark",
+    "jewellery",
+    "jewelry",
+    "gold",
 ]
 
 GREETING_KEYWORDS = {"hello", "hi", "hey", "namaste", "good morning", "good afternoon", "good evening"}
-LOCATION_KEYWORDS = {"location", "address", "where are you", "store hours", "operating hours", "timing", "directions"}
-ORDER_KEYWORDS = {"order status", "my order", "track order", "tracking", "where is my order", "invoice", "dispatch"}
-ESCALATION_KEYWORDS = {"human", "agent", "representative", "team member", "manager", "speak to someone", "talk to someone"}
-PRICE_OR_STOCK_KEYWORDS = {"how much", "price", "cost", "in stock", "available right now", "quote"}
+LOCATION_KEYWORDS = {"location", "address", "where are you", "showroom", "store hours", "operating hours", "timing", "directions"}
+ORDER_KEYWORDS = {"order status", "my order", "track order", "tracking", "where is my order", "invoice", "dispatch", "delivery"}
+ESCALATION_KEYWORDS = {"human", "agent", "representative", "team member", "manager", "speak to someone", "talk to someone", "appointment"}
+PRICE_OR_STOCK_KEYWORDS = {"how much", "price", "cost", "gold rate", "today's rate", "rate today", "making charges", "in stock", "available right now", "quote"}
 
 
 class AutomationService:
@@ -69,10 +80,10 @@ class AutomationService:
 
     @staticmethod
     def seed_default_rules(db: Session) -> None:
-        """Seed baseline configurable automation rules in the database if none exist."""
+        """Seed or update baseline configurable automation rules for Maxis Gold Jewellery."""
         default_rules = [
             {
-                "name": "kap_greeting",
+                "name": "maxis_greeting",
                 "rule_type": "greeting",
                 "keywords": ["hello", "hi", "hey", "namaste"],
                 "response_text": settings.BUSINESS_GREETING,
@@ -80,28 +91,49 @@ class AutomationService:
                 "priority": 10,
             },
             {
-                "name": "kap_location_hours",
+                "name": "maxis_showroom_location_hours",
                 "rule_type": "location",
-                "keywords": ["location", "address", "where are you", "operating hours", "store hours"],
+                "keywords": ["location", "address", "showroom", "where are you", "operating hours", "store hours"],
                 "response_text": (
-                    "Our team can share our store location and operating hours. "
+                    "Our team can share our showroom location and operating hours. "
                     "Would you like to speak with a team member?"
                 ),
                 "requires_human_escalation": False,
                 "priority": 20,
             },
             {
-                "name": "kap_order_inquiry",
+                "name": "maxis_order_inquiry",
                 "rule_type": "order_inquiry",
                 "keywords": ["order status", "my order", "track order", "invoice", "delivery status"],
                 "response_text": (
-                    "To provide verified information on your order, I am connecting you with a Kanti Auto Parts "
+                    "To provide verified information on your order, I am connecting you with a Maxis Gold Jewellery "
                     "team member. Please share your order or invoice number."
                 ),
                 "requires_human_escalation": True,
                 "priority": 30,
             },
         ]
+
+        # Clean up any legacy Kanti Auto Parts default rule names/texts in existing DB
+        for existing_rule in db.query(AutomationRule).all():
+            if existing_rule.response_text and "Kanti Auto Parts" in existing_rule.response_text:
+                existing_rule.response_text = existing_rule.response_text.replace(
+                    "Kanti Auto Parts", "Maxis Gold Jewellery"
+                )
+            if existing_rule.name == "kap_greeting":
+                existing_rule.name = "maxis_greeting"
+                existing_rule.response_text = settings.BUSINESS_GREETING
+            elif existing_rule.name == "kap_location_hours":
+                existing_rule.name = "maxis_showroom_location_hours"
+                existing_rule.response_text = (
+                    "Our team can share our showroom location and operating hours. "
+                    "Would you like to speak with a team member?"
+                )
+            elif existing_rule.name == "kap_order_inquiry":
+                existing_rule.name = "maxis_order_inquiry"
+
+        db.flush()
+
         for rule_data in default_rules:
             existing = db.query(AutomationRule).filter(AutomationRule.name == rule_data["name"]).first()
             if not existing:
@@ -147,72 +179,63 @@ class AutomationService:
         """
         Determine the appropriate customer support response, whether human escalation is required,
         and the escalation reason.
-        NEVER invents product availability, stock, prices, delivery promises, or order status.
+        NEVER invents live gold rates, stock availability, making charges, delivery promises, or order status.
         """
         cleaned = incoming_text.strip()
         lowered = cleaned.lower()
         normalized_words = re.sub(r"[^\w\s]", "", lowered).strip()
 
-        # 1. Explicit request for human agent
+        # 1. Explicit request for human specialist or showroom appointment
         if any(kw in lowered for kw in ESCALATION_KEYWORDS) or normalized_words in {"yes", "yes please"}:
             return (
-                "I have notified a Kanti Auto Parts team member to assist you directly. "
-                "A specialist will review your conversation and reply shortly.",
+                "I have notified a Maxis Gold Jewellery showroom specialist to assist you directly. "
+                "A team member will review your conversation and reply shortly.",
                 True,
-                "Customer requested human agent assistance",
+                "Customer requested human specialist assistance",
             )
 
         # 2. Order inquiry -> escalate to human agent (never fabricate order status or delivery date)
         if any(kw in lowered for kw in ORDER_KEYWORDS) or re.search(r"\border\b", lowered):
             return (
-                "To provide verified information on your order, I am connecting you with a Kanti Auto Parts "
+                "To provide verified information on your order, I am connecting you with a Maxis Gold Jewellery "
                 "team member. Please share your order or invoice number.",
                 True,
-                "Order status inquiry requires verified ERP/human lookup",
+                "Order status inquiry requires verified showroom/human lookup",
             )
 
-        # 3. Location / store hours inquiry
+        # 3. Showroom location / store hours inquiry
         if any(kw in lowered for kw in LOCATION_KEYWORDS):
             return (
-                "Our team can share our store location and operating hours. "
+                "Our team can share our showroom location and operating hours. "
                 "Would you like to speak with a team member?",
                 False,
                 None,
             )
 
-        # 4. Product / Auto part inquiry
-        matched_part: Optional[str] = None
-        for part in AUTO_PARTS_CATALOG_KEYWORDS:
-            if part in lowered:
-                matched_part = part
+        # 4. Live gold rate / price / making charges / stock inquiry -> escalate without inventing rates
+        asks_price_or_stock = any(pk in lowered for pk in PRICE_OR_STOCK_KEYWORDS)
+        matched_item: Optional[str] = None
+        for item in JEWELLERY_CATALOG_KEYWORDS:
+            if item in lowered:
+                matched_item = item
                 break
 
-        if matched_part:
-            # Check if customer is asking for exact price or stock or already provided a 4-digit year
-            has_year = bool(re.search(r"\b(19[89]\d|20[012]\d)\b", lowered))
-            asks_price_or_stock = any(pk in lowered for pk in PRICE_OR_STOCK_KEYWORDS)
-            if has_year or asks_price_or_stock:
-                return (
-                    f"Thank you for sharing those details regarding {matched_part}. "
-                    "Because live inventory and pricing require verification by our parts counter, "
-                    "I am escalating your request to a Kanti Auto Parts specialist who will confirm availability and price.",
-                    True,
-                    f"Inventory/pricing verification required for {matched_part}",
-                )
-            display_part = "brake pads" if "brake pad" in matched_part else matched_part
+        if asks_price_or_stock:
+            topic = matched_item or "today's gold rate and pricing"
             return (
-                f"Certainly! Could you please share your vehicle model and year so we can help you find the correct {display_part}?",
-                False,
-                None,
+                f"Thank you for inquiring about {topic} at Maxis Gold Jewellery. "
+                "Because live gold rates, making charges, and showroom availability are updated daily, "
+                "I am connecting you with a showroom specialist who will confirm the exact verified details.",
+                True,
+                f"Live pricing/gold rate verification required for {topic}",
             )
 
-        # If customer replies with a vehicle model and 4-digit year (e.g. "Swift 2021" or "Hyundai Creta 2022")
-        if re.search(r"\b(19[89]\d|20[012]\d)\b", lowered):
+        if matched_item:
             return (
-                "Thank you for providing your vehicle model and year. I have connected your inquiry with our "
-                "parts specialist team to verify exact fitment, stock, and pricing for your vehicle.",
-                True,
-                "Customer provided vehicle model/year for fitment & stock verification",
+                f"Certainly! Could you please share your preferred purity (22K Gold / 18K / Diamond) or occasion "
+                f"so we can help you find the perfect {matched_item} at Maxis Gold Jewellery?",
+                False,
+                None,
             )
 
         # 5. Greeting
@@ -239,11 +262,11 @@ class AutomationService:
 
         # 7. Fallback response (escalates to human agent rather than guessing)
         return (
-            "Thank you for contacting Kanti Auto Parts. To ensure you receive accurate assistance, "
-            "I have forwarded your message to our customer support team. You can also share your "
-            "vehicle model and year or order number for faster service.",
+            "Thank you for contacting Maxis Gold Jewellery. To ensure you receive accurate assistance, "
+            "I have forwarded your message to our showroom team. You can also share your preferred design "
+            "or order number for faster service.",
             True,
-            "Unrecognized inquiry escalated to human support agent",
+            "Unrecognized inquiry escalated to human showroom specialist",
         )
 
     @classmethod

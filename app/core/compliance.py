@@ -19,6 +19,7 @@ from app.models.system import ComplianceState
 from app.models.template import MessageTemplate
 
 E164_PHONE_REGEX = re.compile(r"^\+[1-9]\d{7,14}$")
+INDIAN_E164_PHONE_REGEX = re.compile(r"^\+91[6-9]\d{9}$")
 
 PROMOTIONAL_KEYWORDS = (
     "% off",
@@ -59,13 +60,56 @@ def normalize_e164_phone(phone: str) -> str:
     """Normalize a phone string while keeping strict E.164 leading '+' requirement."""
     if not phone:
         return ""
-    cleaned = re.sub(r"[\s\-\(\)]", "", str(phone).strip())
+    cleaned = re.sub(r"[\s\-\(\)\.]", "", str(phone).strip())
     return cleaned
 
 
+def normalize_indian_e164_phone(raw_phone: str) -> tuple[str, bool]:
+    """
+    Normalize Indian phone numbers into strict E.164 format (+91XXXXXXXXXX) and validate.
+    Handles:
+    - 10-digit Indian mobile numbers starting with 6-9 (e.g. '9876543210' -> '+919876543210')
+    - 11-digit numbers with leading 0 (e.g. '09876543210' -> '+919876543210')
+    - 12-digit numbers with leading 91 (e.g. '919876543210' -> '+919876543210')
+    - Numbers with leading 0091 (e.g. '00919876543210' -> '+919876543210')
+    - Formatted strings with spaces, hyphens, parentheses, or Excel '.0' suffix
+    Returns (normalized_phone, is_valid_indian_e164).
+    """
+    if raw_phone is None:
+        return "", False
+    text = str(raw_phone).strip()
+    if text.endswith(".0"):
+        text = text[:-2]
+    # Remove spaces, hyphens, parentheses, dots
+    cleaned = re.sub(r"[\s\-\(\)\.]", "", text)
+    if not cleaned:
+        return "", False
+
+    if re.fullmatch(r"[6-9]\d{9}", cleaned):
+        normalized = f"+91{cleaned}"
+    elif re.fullmatch(r"0[6-9]\d{9}", cleaned):
+        normalized = f"+91{cleaned[1:]}"
+    elif re.fullmatch(r"91[6-9]\d{9}", cleaned):
+        normalized = f"+{cleaned}"
+    elif re.fullmatch(r"0091[6-9]\d{9}", cleaned):
+        normalized = f"+91{cleaned[4:]}"
+    elif cleaned.startswith("+"):
+        normalized = cleaned
+    else:
+        return cleaned, False
+
+    is_valid = bool(INDIAN_E164_PHONE_REGEX.fullmatch(normalized))
+    return normalized, is_valid
+
+
 def is_valid_e164_phone(phone: str) -> bool:
-    """Return True if phone number is in valid international E.164 format (+[1-9]...)."""
+    """
+    Return True if phone number is in valid international E.164 format (+[1-9]...).
+    For Indian (+91) numbers, strictly requires +91 followed by 10 digits starting with 6-9.
+    """
     normalized = normalize_e164_phone(phone)
+    if normalized.startswith("+91"):
+        return bool(INDIAN_E164_PHONE_REGEX.fullmatch(normalized))
     return bool(E164_PHONE_REGEX.match(normalized))
 
 
@@ -637,20 +681,28 @@ class ComplianceEngine:
                 return template_verdict
             matched_template = template_verdict.template
 
-        # 8. Check conservative sending limits
+        # 8. Check conservative sending limits & rolling 24-hour unique-recipient portfolio limit
         if reserve_rate_limit:
-            within_limits, limit_error = outbound_rate_limiter.check_and_reserve(db=db)
+            within_limits, limit_error = outbound_rate_limiter.check_and_reserve(
+                db=db,
+                recipient_phone=recipient_phone,
+            )
             if not within_limits:
+                reason_code = (
+                    "PORTFOLIO_24H_UNIQUE_RECIPIENT_LIMIT_REACHED"
+                    if limit_error and "PORTFOLIO_24H_UNIQUE_RECIPIENT_LIMIT_REACHED" in limit_error
+                    else "RATE_LIMIT_EXCEEDED"
+                )
                 log_structured_event(
                     "compliance_blocked",
-                    f"Rate limit prevented outbound send: {limit_error}",
+                    f"Rate/portfolio limit prevented outbound send: {limit_error}",
                     customer_id=customer.id,
                     recipient_phone=recipient_phone,
-                    reason="RATE_LIMIT_EXCEEDED",
+                    reason=reason_code,
                 )
                 return ComplianceVerdict(
                     allowed=False,
-                    reason_code="RATE_LIMIT_EXCEEDED",
+                    reason_code=reason_code,
                     reason_detail=limit_error,
                     window_open=window_open,
                 )

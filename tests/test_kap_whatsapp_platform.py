@@ -184,11 +184,11 @@ def test_incoming_messages_and_automated_kap_support(client: TestClient, db_sess
         .first()
     )
     assert outbound_1 is not None
-    assert "Welcome to Kanti Auto Parts" in (outbound_1.content or "")
+    assert "Welcome to Maxis Gold Jewellery" in (outbound_1.content or "")
 
-    # Case B: Product inquiry ("Do you have brake pads?") -> must ask for vehicle model and year, never invent stock
-    p_brakes = _build_webhook_message_payload("wamid.IN.BRAKES", "919876543210", "Do you have brake pads?")
-    res2 = _post_signed_webhook(client, p_brakes)
+    # Case B: Product inquiry ("Do you have bridal necklaces?") -> must ask for purity/occasion, never invent stock
+    p_jewellery = _build_webhook_message_payload("wamid.IN.JEWEL", "919876543210", "Do you have bridal necklaces?")
+    res2 = _post_signed_webhook(client, p_jewellery)
     assert res2.status_code == 200
 
     outbound_2 = (
@@ -198,10 +198,8 @@ def test_incoming_messages_and_automated_kap_support(client: TestClient, db_sess
         .first()
     )
     assert outbound_2 is not None
-    assert (
-        outbound_2.content
-        == "Certainly! Could you please share your vehicle model and year so we can help you find the correct brake pads?"
-    )
+    assert "bridal necklaces" in (outbound_2.content or "")
+    assert "Maxis Gold Jewellery" in (outbound_2.content or "")
 
     # Case C: Location inquiry ("What is your location?")
     p_loc = _build_webhook_message_payload("wamid.IN.LOC", "919876543210", "What is your location?")
@@ -217,7 +215,7 @@ def test_incoming_messages_and_automated_kap_support(client: TestClient, db_sess
     assert outbound_3 is not None
     assert (
         outbound_3.content
-        == "Our team can share our store location and operating hours. Would you like to speak with a team member?"
+        == "Our team can share our showroom location and operating hours. Would you like to speak with a team member?"
     )
 
 

@@ -1,0 +1,2332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Maxis Gold Jewellery — WhatsApp Automation Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-app: #f1f5f9;
+      --bg-sidebar: #0b132b;
+      --bg-sidebar-hover: #1c2541;
+      --surface: #ffffff;
+      --surface-subtle: #f8fafc;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --wa-teal: #008069;
+      --wa-green: #10b981;
+      --wa-green-dark: #059669;
+      --wa-green-soft: #ecfdf5;
+      --wa-bubble-out: #d9fdd3;
+      --wa-chat-bg: #efeae2;
+      --gold: #d97706;
+      --gold-grad: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+      --accent: #2563eb;
+      --accent-soft: #eff6ff;
+      --danger: #e11d48;
+      --danger-soft: #fff1f2;
+      --warning: #d97706;
+      --warning-soft: #fffbeb;
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      --shadow-lg: 0 20px 35px -10px rgba(15, 23, 42, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-app);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, h4, .font-display {
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      letter-spacing: -0.02em;
+    }
+    code, .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ===================================================================== */
+    /* SIDEBAR NAVIGATION                                                    */
+    /* ===================================================================== */
+    .sidebar {
+      width: 274px;
+      background: linear-gradient(180deg, #090f24 0%, #0f172a 100%);
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      border-right: 1px solid rgba(255, 255, 255, 0.07);
+      z-index: 40;
+    }
+    .sidebar-brand {
+      padding: 22px 20px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--gold-grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+      color: #ffffff;
+      box-shadow: 0 6px 16px rgba(217, 119, 6, 0.35);
+      flex-shrink: 0;
+    }
+    .brand-text h1 {
+      font-size: 15.5px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+    .brand-text span {
+      font-size: 11.5px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .nav-group-label {
+      padding: 18px 20px 8px;
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #64748b;
+    }
+    .sidebar-nav {
+      padding: 0 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: #cbd5e1;
+      font-size: 13.5px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+    }
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(16, 185, 129, 0.22) 0%, rgba(16, 185, 129, 0.08) 100%);
+      color: #34d399;
+      border-left: 3px solid #10b981;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .nav-item svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      opacity: 0.85;
+    }
+    .nav-badge {
+      margin-left: auto;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+    }
+
+    .sidebar-footer {
+      padding: 16px;
+      margin: 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .capacity-meter-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .progress-track {
+      width: 100%;
+      height: 7px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      width: 100%;
+      transition: width 0.3s ease;
+    }
+
+    /* ===================================================================== */
+    /* MAIN CONTENT AREA & TOPBAR                                            */
+    /* ===================================================================== */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .topbar {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .page-heading h2 {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .page-heading p {
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    .topbar-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 13px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+    .status-pill.live {
+      background: var(--wa-green-soft);
+      color: #065f46;
+      border-color: #a7f3d0;
+    }
+    .status-pill.dry {
+      background: var(--warning-soft);
+      color: #92400e;
+      border-color: #fde68a;
+    }
+    .status-pill.dry .status-dot {
+      background: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+    }
+    .status-pill.danger {
+      background: var(--danger-soft);
+      color: #9f1239;
+      border-color: #fecdd3;
+    }
+    .status-pill.danger .status-dot {
+      background: #e11d48;
+      box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.2);
+    }
+
+    .content-area {
+      padding: 24px 28px 48px;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ===================================================================== */
+    /* KPI METRIC CARDS                                                      */
+    /* ===================================================================== */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1100px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .sidebar { width: 220px; }
+    }
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .sidebar { width: 100%; height: auto; position: static; }
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .kpi-info .label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .kpi-info .value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 4px 0 2px;
+      font-variant-numeric: tabular-nums;
+    }
+    .kpi-info .sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .kpi-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .kpi-icon.green { background: var(--wa-green-soft); color: var(--wa-green-dark); }
+    .kpi-icon.blue { background: var(--accent-soft); color: var(--accent); }
+    .kpi-icon.amber { background: var(--warning-soft); color: var(--warning); }
+    .kpi-icon.rose { background: var(--danger-soft); color: var(--danger); }
+
+    /* ===================================================================== */
+    /* CARDS, GRIDS & WORKSPACE LAYOUTS                                      */
+    /* ===================================================================== */
+    .section-view { display: none; animation: fadeIn 0.2s ease; }
+    .section-view.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+      margin-bottom: 22px;
+    }
+    @media (max-width: 1050px) {
+      .workspace-grid { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 22px;
+    }
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 16px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+    .card-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .step-number {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: #fff;
+      font-weight: 800;
+      font-size: 13.5px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+    }
+    .card-title {
+      font-size: 16.5px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .card-subtitle {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ===================================================================== */
+    /* FILE DROPZONE & FORM CONTROLS                                         */
+    /* ===================================================================== */
+    .file-dropzone {
+      border: 2px dashed #94a3b8;
+      background: #f8fafc;
+      border-radius: var(--radius-md);
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .file-dropzone:hover, .file-dropzone.has-file {
+      border-color: var(--wa-green-dark);
+      background: var(--wa-green-soft);
+    }
+    .file-dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .dropzone-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-top: 6px;
+    }
+    .dropzone-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .form-group { margin-bottom: 15px; }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 640px) {
+      .form-row { grid-template-columns: 1fr; }
+    }
+    label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+    input[type="text"],
+    input[type="password"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1px solid var(--border-strong);
+      border-radius: 9px;
+      font-size: 13.5px;
+      font-family: inherit;
+      color: var(--text-main);
+      background: #fff;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--wa-green-dark);
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    }
+    textarea { min-height: 82px; resize: vertical; }
+
+    /* ===================================================================== */
+    /* BUTTONS                                                               */
+    /* ===================================================================== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 9px;
+      font-size: 13.5px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #047857 0%, #059669 100%);
+      transform: translateY(-1px);
+    }
+    .btn-accent {
+      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+    .btn-accent:hover {
+      background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+      transform: translateY(-1px);
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, #be123c 0%, #e11d48 100%);
+      color: #ffffff;
+    }
+    .btn-outline {
+      background: #ffffff;
+      color: var(--text-main);
+      border-color: var(--border-strong);
+    }
+    .btn-outline:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 7px;
+    }
+
+    /* ===================================================================== */
+    /* WHATSAPP PHONE MOCKUP & MESSAGE BUBBLE PREVIEW                        */
+    /* ===================================================================== */
+    .wa-phone-preview {
+      background: var(--wa-chat-bg);
+      border-radius: 14px;
+      border: 1px solid #d1d5db;
+      overflow: hidden;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.04);
+      margin-top: 14px;
+    }
+    .wa-phone-header {
+      background: var(--wa-teal);
+      color: #ffffff;
+      padding: 11px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .wa-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gold-grad);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wa-phone-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .wa-phone-sub {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.82);
+    }
+    .wa-phone-body {
+      padding: 16px;
+      max-height: 290px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .wa-msg-bubble {
+      background: #ffffff;
+      border-radius: 0 12px 12px 12px;
+      padding: 11px 14px;
+      max-width: 88%;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+      font-size: 13px;
+      line-height: 1.45;
+      color: #111827;
+      position: relative;
+    }
+    .wa-msg-bubble.outbound {
+      background: var(--wa-bubble-out);
+      border-radius: 12px 0 12px 12px;
+      align-self: flex-end;
+    }
+    .wa-msg-header {
+      font-weight: 800;
+      font-size: 13px;
+      color: #0f172a;
+      margin-bottom: 5px;
+    }
+    .wa-msg-footer {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ===================================================================== */
+    /* IMPORT SUMMARY TILES & MODE CARDS                                     */
+    /* ===================================================================== */
+    .summary-tiles {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .s-tile {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    .s-tile .num {
+      font-size: 22px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .s-tile .lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .s-tile.eligible {
+      background: var(--wa-green-soft);
+      border-color: #a7f3d0;
+      color: #065f46;
+    }
+    .s-tile.warn {
+      background: var(--warning-soft);
+      border-color: #fde68a;
+      color: #92400e;
+    }
+    .s-tile.danger {
+      background: var(--danger-soft);
+      border-color: #fecdd3;
+      color: #9f1239;
+    }
+
+    .mode-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .mode-card {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      background: #fff;
+    }
+    .mode-card.selected-dry {
+      border-color: #f59e0b;
+      background: var(--warning-soft);
+    }
+    .mode-card.selected-live {
+      border-color: #10b981;
+      background: var(--wa-green-soft);
+    }
+    .mode-card-title {
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mode-card-desc {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      margin-top: 3px;
+    }
+
+    /* ===================================================================== */
+    /* TABLES & BADGES                                                       */
+    /* ===================================================================== */
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      padding: 11px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: #f8fafc;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .badge-success { background: #dcfce7; color: #15803d; }
+    .badge-warning { background: #fef3c7; color: #b45309; }
+    .badge-danger { background: #ffe4e6; color: #be123c; }
+    .badge-neutral { background: #e2e8f0; color: #334155; }
+    .badge-blue { background: #dbeafe; color: #1d4ed8; }
+
+    .alert-banner {
+      padding: 13px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      line-height: 1.45;
+    }
+    .alert-banner.success { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+    .alert-banner.error { background: #fff1f2; border-color: #fda4af; color: #9f1239; }
+    .alert-banner.warning { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
+
+    /* ===================================================================== */
+    /* TOAST NOTIFICATIONS & LOGIN MODAL                                     */
+    /* ===================================================================== */
+    #toast-container {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 380px;
+    }
+    .toast {
+      background: #0f172a;
+      color: #ffffff;
+      padding: 13px 16px;
+      border-radius: 11px;
+      font-size: 13px;
+      box-shadow: var(--shadow-lg);
+      border-left: 4px solid #10b981;
+      animation: slideIn 0.2s ease;
+    }
+    .toast.error { border-left-color: #e11d48; }
+    .toast.warning { border-left-color: #f59e0b; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    #login-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(9, 15, 36, 0.78);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .login-modal {
+      background: #ffffff;
+      width: 100%;
+      max-width: 410px;
+      padding: 32px;
+      border-radius: 18px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .chip-bar {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .chip {
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #1e293b;
+      cursor: pointer;
+      transition: all 0.14s ease;
+    }
+    .chip:hover {
+      background: var(--wa-green-soft);
+      border-color: var(--wa-green);
+      color: #065f46;
+    }
+    .chip.danger:hover {
+      background: var(--danger-soft);
+      border-color: var(--danger);
+      color: #9f1239;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- Login Overlay -->
+  <div id="login-overlay">
+    <div class="login-modal">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <div class="brand-icon">MGJ</div>
+        <div>
+          <h2 style="font-size:19px;">Maxis Gold Jewellery</h2>
+          <p style="font-size:12.5px;color:var(--text-muted);">WhatsApp Automation Studio Login</p>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Administrator Username</label>
+        <input type="text" id="login-username" value="admin" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" value="KAP_Admin_Secure_2026!" />
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:12px;" onclick="performLogin()">
+        Sign In to Automation Studio
+      </button>
+      <div id="login-error" class="alert-banner error" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- LEFT SIDEBAR                                                          -->
+  <!-- ===================================================================== -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">MGJ</div>
+      <div class="brand-text">
+        <h1>Maxis Gold Jewellery</h1>
+        <span>WhatsApp Automation Studio</span>
+      </div>
+    </div>
+
+    <div class="nav-group-label">Automation Core</div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="switchTab('tab-automation', 'Campaign & Excel Automation Studio', 'Import customer sheets, preview WhatsApp messages, and launch compliant campaigns for Maxis Gold Jewellery.', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <span>Campaign & Excel Studio</span>
+        <span class="nav-badge">Primary</span>
+      </button>
+
+      <button class="nav-item" onclick="switchTab('tab-autoreply', 'Automated Support & Chat Simulator', 'Configure instant keyword auto-replies and test showroom inquiries in the live WhatsApp simulator.', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Auto-Reply & Simulator</span>
+      </button>
+
+      <button class="nav-item" onclick="switchTab('tab-quick-send', 'Quick Automated 1-to-1 Sender', 'Dispatch an instant approved template or 24h customer service reply to a Maxis Gold Jewellery client.', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        <span>Quick Automated Send</span>
+      </button>
+
+      <div class="nav-group-label" style="padding-left:8px;">Data & Governance</div>
+
+      <button class="nav-item" onclick="switchTab('tab-customers', 'Customer & Consent Directory', 'Manage customer opt-in evidence, 24-hour service windows, and instant opt-out controls.', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>Customers & Consent</span>
+      </button>
+
+      <button class="nav-item" onclick="switchTab('tab-logs', 'Message Logs, Templates & Safety', 'Inspect live Meta Cloud API delivery statuses, synced templates, and emergency kill switch.', this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>Logs & Safety Controls</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="capacity-meter-label">
+        <span>Meta 24h Portfolio Quota</span>
+        <span id="sidebar-cap-text" class="mono">250 / 250</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="sidebar-cap-bar"></div>
+      </div>
+      <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
+        <a href="/docs" target="_blank" style="color:#94a3b8;font-size:11.5px;text-decoration:none;">Swagger API ↗</a>
+        <button onclick="showLoginModal()" style="background:none;border:none;color:#94a3b8;font-size:11.5px;cursor:pointer;">Switch User</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================================================================== -->
+  <!-- MAIN WORKSPACE                                                        -->
+  <!-- ===================================================================== -->
+  <div class="main-wrapper">
+
+    <!-- Sticky Glass Topbar -->
+    <header class="topbar">
+      <div class="page-heading">
+        <h2 id="topbar-title">Campaign & Excel Automation Studio</h2>
+        <p id="topbar-subtitle">Import customer sheets, preview WhatsApp messages, and launch compliant campaigns for Maxis Gold Jewellery.</p>
+      </div>
+      <div class="topbar-controls">
+        <div id="pill-mode" class="status-pill live">
+          <span class="status-dot"></span>
+          <span>Meta Cloud API: Ready</span>
+        </div>
+        <div id="pill-killswitch" class="status-pill live">
+          <span class="status-dot"></span>
+          <span>Kill Switch: OFF</span>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="syncMetaTemplates()">
+          🔄 Sync Meta Templates
+        </button>
+      </div>
+    </header>
+
+    <div class="content-area">
+
+      <!-- Top KPI Strip -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-info">
+            <div class="label">24h Portfolio Capacity</div>
+            <div class="value" id="kpi-capacity">250 / 250</div>
+            <div class="sub">Unique recipients remaining</div>
+          </div>
+          <div class="kpi-icon green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-info">
+            <div class="label">Verified Opted-In</div>
+            <div class="value" id="kpi-optedin">0</div>
+            <div class="sub">Eligible for marketing</div>
+          </div>
+          <div class="kpi-icon blue">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-info">
+            <div class="label">Automated Dispatches</div>
+            <div class="value" id="kpi-outbound">0</div>
+            <div class="sub" id="kpi-inbound-note">Inbound inquiries: 0</div>
+          </div>
+          <div class="kpi-icon amber">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          </div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-info">
+            <div class="label">Compliance Protected</div>
+            <div class="value" id="kpi-blocked">0</div>
+            <div class="sub" id="kpi-optout-note">Opt-outs & policy blocks</div>
+          </div>
+          <div class="kpi-icon rose">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 1: CAMPAIGN & EXCEL AUTOMATION STUDIO (PRIMARY)              -->
+      <!-- ================================================================= -->
+      <section id="tab-automation" class="section-view active">
+        <div class="workspace-grid">
+
+          <!-- LEFT COLUMN: STEP 1 — UPLOAD EXCEL & SELECT TEMPLATE + LIVE WHATSAPP PREVIEW -->
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-header">
+              <div class="card-title-wrap">
+                <span class="step-number">1</span>
+                <div>
+                  <div class="card-title">Upload Customer Sheet & Select Template</div>
+                  <div class="card-subtitle">Auto-normalizes Indian +91 numbers, verifies consent proof, and builds your campaign preview.</div>
+                </div>
+              </div>
+              <a href="/api/customers/sample-excel" class="btn btn-outline btn-sm">📥 Sample .xlsx</a>
+            </div>
+
+            <!-- Interactive File Dropzone -->
+            <div class="file-dropzone" id="excel-dropzone">
+              <input type="file" id="import-file" accept=".xlsx,.csv" onchange="onFileSelected(this)" />
+              <div style="font-size:24px;">📊</div>
+              <div class="dropzone-title" id="dropzone-filename">Click to choose your Excel (.xlsx) or CSV (.csv) file</div>
+              <div class="dropzone-sub">Columns: phone_number, name, marketing_consent, consent_evidence, opted_out</div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Campaign Title</label>
+                <input type="text" id="import-campaign-name" value="Maxis Gold Jewellery Festive Collection" />
+              </div>
+              <div class="form-group">
+                <label>Approved Meta WhatsApp Template</label>
+                <select id="import-template-id" onchange="updateTemplateBubblePreview()"></select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Campaign Purpose / Notes</label>
+              <input type="text" id="import-campaign-purpose" value="Festive & Bridal Gold Jewellery preview for opted-in VIP clients" />
+            </div>
+
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-primary" onclick="uploadExcelAndPrepareCampaign()">
+                ✨ Upload Sheet & Prepare Campaign Preview
+              </button>
+              <button class="btn btn-outline" onclick="syncMetaTemplates()">
+                🔄 Sync Templates from Meta
+              </button>
+            </div>
+
+            <div id="import-feedback" style="display:none;"></div>
+
+            <!-- LIVE WHATSAPP MESSAGE BUBBLE PREVIEW -->
+            <div class="wa-phone-preview">
+              <div class="wa-phone-header">
+                <div class="wa-avatar">MGJ</div>
+                <div>
+                  <div class="wa-phone-title">
+                    <span>Maxis Gold Jewellery</span>
+                    <span style="background:#34d399;color:#064e3b;border-radius:50%;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;">✓</span>
+                  </div>
+                  <div class="wa-phone-sub" id="preview-bubble-meta">Official Business Account • Template Preview</div>
+                </div>
+              </div>
+              <div class="wa-phone-body">
+                <div class="wa-msg-bubble">
+                  <div class="wa-msg-header" id="preview-bubble-header">Maxis Gold Jewellery - Festive & Bridal Collection</div>
+                  <div id="preview-bubble-body">Hello <strong>Rajesh</strong>, explore our new BIS Hallmarked 22K Gold and Bridal Diamond collection at Maxis Gold Jewellery. Reply to book a private showroom viewing with our jewellery specialist.</div>
+                  <div class="wa-msg-footer">
+                    <span id="preview-bubble-footer">Reply STOP to unsubscribe from marketing messages.</span>
+                    <span>9:41 AM</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: STEP 2 & STEP 3 — ELIGIBILITY SUMMARY & 1-CLICK EXECUTION -->
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-header">
+              <div class="card-title-wrap">
+                <span class="step-number">2</span>
+                <div>
+                  <div class="card-title">Eligibility Breakdown & Launch Control</div>
+                  <div class="card-subtitle">Review verified recipients and execute in Dry-Run or Live Meta mode.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-tiles">
+              <div class="s-tile">
+                <div class="num" id="sum-total">0</div>
+                <div class="lbl">Total Rows</div>
+              </div>
+              <div class="s-tile">
+                <div class="num" id="sum-valid">0</div>
+                <div class="lbl">Valid +91 Phones</div>
+              </div>
+              <div class="s-tile">
+                <div class="num" id="sum-dup">0</div>
+                <div class="lbl">Duplicates</div>
+              </div>
+              <div class="s-tile warn">
+                <div class="num" id="sum-noconsent">0</div>
+                <div class="lbl">Missing Consent</div>
+              </div>
+              <div class="s-tile danger">
+                <div class="num" id="sum-optout">0</div>
+                <div class="lbl">Opted Out</div>
+              </div>
+              <div class="s-tile eligible">
+                <div class="num" id="sum-eligible">0</div>
+                <div class="lbl">Eligible to Send</div>
+              </div>
+            </div>
+
+            <div style="margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <label style="margin:0;">Verified Eligible Recipients</label>
+                <span id="preview-template-label" class="badge badge-blue">No campaign loaded yet</span>
+              </div>
+              <div class="table-container" style="max-height:175px;overflow-y:auto;">
+                <table>
+                  <thead>
+                    <tr><th>ID</th><th>E.164 Phone</th><th>Customer Name</th><th>Consent Proof</th></tr>
+                  </thead>
+                  <tbody id="eligible-recipients-tbody">
+                    <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">Upload an Excel/CSV file on the left (or load a campaign below) to view eligible contacts.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- STEP 3: LAUNCH CONTROL -->
+            <div style="background:var(--surface-subtle);border:1px solid var(--border);border-radius:12px;padding:16px;">
+              <div class="card-title-wrap" style="margin-bottom:12px;">
+                <span class="step-number">3</span>
+                <div>
+                  <div class="card-title" style="font-size:15px;">Confirm & Launch Campaign</div>
+                </div>
+              </div>
+
+              <input type="hidden" id="exec-mode" value="live" />
+              <div class="mode-selector">
+                <div id="mode-card-dry" class="mode-card" onclick="selectExecMode('dry_run')">
+                  <div class="mode-card-title">🛡️ Safe Dry-Run Mode</div>
+                  <div class="mode-card-desc">Simulates compliance & logs without sending to phones.</div>
+                </div>
+                <div id="mode-card-live" class="mode-card selected-live" onclick="selectExecMode('live')">
+                  <div class="mode-card-title">⚡ Live Meta Delivery</div>
+                  <div class="mode-card-desc">Sends real WhatsApp messages via Meta Cloud API.</div>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:12px;">
+                <label>Target Campaign ID</label>
+                <input type="number" id="exec-campaign-id" placeholder="Auto-filled when you upload or load a campaign" />
+              </div>
+
+              <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-weight:600;margin-bottom:14px;">
+                <input type="checkbox" id="exec-confirm-check" checked style="width:16px;height:16px;accent-color:var(--wa-green-dark);" />
+                <span>I have reviewed the eligible recipients and authorize executing this campaign.</span>
+              </label>
+
+              <button class="btn btn-primary" style="width:100%;padding:12px;font-size:14px;" onclick="executeConfirmedCampaign()">
+                🚀 Confirm & Execute Campaign Now
+              </button>
+
+              <div id="exec-feedback" style="display:none;"></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CAMPAIGN HISTORY TABLE -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Prepared & Executed Campaigns</div>
+              <div class="card-subtitle">Click "Load into Executor" on any campaign to preview or re-run it.</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="loadCampaigns()">↻ Refresh</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Campaign Name</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Selected</th>
+                  <th>Eligible</th>
+                  <th>Blocked / Excluded</th>
+                  <th>Sent</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="campaigns-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 2: AUTO-REPLY ENGINE & INTERACTIVE WHATSAPP SIMULATOR        -->
+      <!-- ================================================================= -->
+      <section id="tab-autoreply" class="section-view">
+        <div class="workspace-grid">
+
+          <!-- INTERACTIVE WHATSAPP CHAT SIMULATOR -->
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Interactive WhatsApp Auto-Reply Simulator</div>
+                <div class="card-subtitle">Test how Maxis Gold Jewellery automatically responds to showroom inquiries & opt-out commands.</div>
+              </div>
+            </div>
+
+            <label>Click a Preset Customer Inquiry:</label>
+            <div class="chip-bar">
+              <span class="chip" onclick="setSimText('Hello', true)">👋 "Hello"</span>
+              <span class="chip" onclick="setSimText('Do you have bridal necklaces?', true)">💎 "Do you have bridal necklaces?"</span>
+              <span class="chip" onclick="setSimText('What is today gold rate?', true)">✨ "What is today's gold rate?"</span>
+              <span class="chip" onclick="setSimText('What is your showroom location?', true)">📍 "Showroom location?"</span>
+              <span class="chip" onclick="setSimText('Where is my order #501?', true)">📦 "Where is my order?"</span>
+              <span class="chip danger" onclick="setSimText('STOP', true)">🛑 "STOP" (Opt-Out)</span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Simulated Customer Phone</label>
+                <input type="text" id="sim-phone" value="+919876543210" />
+              </div>
+              <div class="form-group">
+                <label>Customer Profile Name</label>
+                <input type="text" id="sim-name" value="Priya Sharma" />
+              </div>
+            </div>
+
+            <!-- Live Chat Feed -->
+            <div class="wa-phone-preview" style="margin-bottom:14px;">
+              <div class="wa-phone-header">
+                <div class="wa-avatar">MGJ</div>
+                <div>
+                  <div class="wa-phone-title">Maxis Gold Jewellery Automated Support</div>
+                  <div class="wa-phone-sub">24-Hour Customer Service Window Simulator</div>
+                </div>
+              </div>
+              <div class="wa-phone-body" id="sim-chat-feed" style="min-height:210px;">
+                <div class="wa-msg-bubble">
+                  <div class="wa-msg-header">Maxis Gold Jewellery Automation</div>
+                  Click any preset inquiry above or type a customer message below to preview the automated showroom response!
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;">
+              <input type="text" id="sim-text" value="Do you have bridal necklaces?" placeholder="Type a customer WhatsApp message..." onkeydown="if(event.key==='Enter') runIncomingSimulation()" />
+              <button class="btn btn-primary" onclick="runIncomingSimulation()">Send Inquiry ➢</button>
+            </div>
+            <div id="sim-result-box" style="display:none;"></div>
+          </div>
+
+          <!-- CREATE / UPDATE KEYWORD AUTOMATION RULE -->
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Create / Edit Keyword Auto-Reply Rule</div>
+                <div class="card-subtitle">Add custom FAQ or showroom auto-replies without inventing live gold rates or stock.</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Rule Identifier</label>
+                <input type="text" id="rule-name" placeholder="e.g. maxis_hallmark_faq" />
+              </div>
+              <div class="form-group">
+                <label>Priority (Lower runs first)</label>
+                <input type="number" id="rule-priority" value="40" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Trigger Keywords (Comma-separated)</label>
+              <input type="text" id="rule-keywords" placeholder="e.g. hallmark, bis, certificate, exchange" />
+            </div>
+
+            <div class="form-group">
+              <label>Automated WhatsApp Response</label>
+              <textarea id="rule-response" placeholder="All gold ornaments at Maxis Gold Jewellery are 100% BIS Hallmarked with HUID certification. Would you like to book a showroom appointment?"></textarea>
+            </div>
+
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:16px;">
+              <input type="checkbox" id="rule-escalate" style="width:16px;height:16px;accent-color:var(--wa-green-dark);" />
+              <span>Escalate conversation to a human showroom specialist</span>
+            </label>
+
+            <button class="btn btn-primary" style="width:100%;" onclick="saveAutomationRule()">
+              💾 Save Keyword Auto-Reply Rule
+            </button>
+            <div id="rule-feedback" style="display:none;"></div>
+          </div>
+
+        </div>
+
+        <!-- ACTIVE AUTOMATION RULES TABLE -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Configured Auto-Reply Rules</div>
+              <div class="card-subtitle">Toggle rules active or paused in real time.</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="loadAutomationRules()">↻ Refresh Rules</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Priority</th>
+                  <th>Rule Name</th>
+                  <th>Trigger Keywords</th>
+                  <th>Automated Response</th>
+                  <th>Escalation</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="rules-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 3: QUICK AUTOMATED 1-TO-1 SENDER                             -->
+      <!-- ================================================================= -->
+      <section id="tab-quick-send" class="section-view">
+        <div class="workspace-grid">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Quick 1-to-1 Automated Message Dispatcher</div>
+                <div class="card-subtitle">Every outbound message passes through the Strict WhatsApp Policy Compliance Engine.</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Recipient Customer</label>
+                <select id="quick-customer-id"></select>
+              </div>
+              <div class="form-group">
+                <label>Message Type</label>
+                <select id="quick-msg-mode" onchange="toggleQuickSendFields()">
+                  <option value="template_marketing">Approved Template (Auto-Detects Category & Language)</option>
+                  <option value="text_service">Free-Form Customer Service Reply (Requires Open 24h Window)</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="quick-template-fields">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Select Approved Template</label>
+                  <select id="quick-template-name"></select>
+                </div>
+                <div class="form-group">
+                  <label>Template Variable Values (Comma-separated for {{1}}, {{2}}...)</label>
+                  <input type="text" id="quick-template-params" value="Priya" placeholder="Leave blank if template has no {{1}} variables" />
+                </div>
+              </div>
+            </div>
+
+            <div id="quick-text-fields" style="display:none;">
+              <div class="form-group">
+                <label>Customer Service Reply Text (Allowed only within 24h of customer's last message)</label>
+                <textarea id="quick-text-content">Hello! Our Maxis Gold Jewellery showroom specialist has reviewed your inquiry. How may we assist you today?</textarea>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="sendQuickAutomatedMessage()">
+              ⚡ Validate Compliance & Dispatch Message
+            </button>
+            <div id="quick-send-feedback" style="display:none;"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Compliance Gate Checklist</div>
+                <div class="card-subtitle">Automatically verified before every 1-to-1 or campaign send.</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;font-size:13px;">
+              <div style="padding:11px 14px;border-radius:10px;background:var(--surface-subtle);border:1px solid var(--border);">
+                <strong>1. Explicit Opt-In & Opt-Out Check</strong><br/>
+                <span style="color:var(--text-muted);">Blocks contacts without recorded consent proof or anyone who sent STOP.</span>
+              </div>
+              <div style="padding:11px 14px;border-radius:10px;background:var(--surface-subtle);border:1px solid var(--border);">
+                <strong>2. 24-Hour Customer Service Window</strong><br/>
+                <span style="color:var(--text-muted);">Free-form text is allowed only within 24 hours of an inbound customer message.</span>
+              </div>
+              <div style="padding:11px 14px;border-radius:10px;background:var(--surface-subtle);border:1px solid var(--border);">
+                <strong>3. Approved Meta Templates & Rolling 24h Quota</strong><br/>
+                <span style="color:var(--text-muted);">Enforces APPROVED template status, matching language code, and 24h unique-recipient capacity.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 4: CUSTOMERS & CONSENT DIRECTORY                             -->
+      <!-- ================================================================= -->
+      <section id="tab-customers" class="section-view">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Add Customer with Verified WhatsApp Opt-In</div>
+              <div class="card-subtitle">Contacts added without consent evidence automatically default to No Consent.</div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Indian 10-Digit or +91 E.164 Phone Number</label>
+              <input type="text" id="cust-phone" placeholder="e.g. +919876543210" />
+            </div>
+            <div class="form-group">
+              <label>Customer Name</label>
+              <input type="text" id="cust-name" placeholder="e.g. Ananya Mehta" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Consent Collection Source</label>
+              <input type="text" id="cust-source" value="maxis_showroom_pos_form" />
+            </div>
+            <div class="form-group">
+              <label>Explicit Consent Evidence</label>
+              <input type="text" id="cust-evidence" value="Signed Maxis Gold Jewellery invoice opt-in" />
+            </div>
+          </div>
+          <div style="display:flex;gap:20px;margin-bottom:14px;">
+            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;">
+              <input type="checkbox" id="cust-mkt-consent" checked style="width:16px;height:16px;accent-color:var(--wa-green-dark);" />
+              <span>Grant Marketing Consent</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:7px;cursor:pointer;">
+              <input type="checkbox" id="cust-util-consent" checked style="width:16px;height:16px;accent-color:var(--wa-green-dark);" />
+              <span>Grant Utility Consent</span>
+            </label>
+          </div>
+          <button class="btn btn-primary" onclick="createCustomerFromUI()">+ Save Customer Record</button>
+          <div id="cust-feedback" style="display:none;"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Customer Consent & 24-Hour Window Directory</div>
+              <div class="card-subtitle">Grant opt-in or record opt-outs with one click.</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="loadCustomers()">↻ Refresh Directory</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Phone (E.164)</th>
+                  <th>Customer Name</th>
+                  <th>24h Service Window</th>
+                  <th>Marketing</th>
+                  <th>Utility</th>
+                  <th>Opt-Out Status</th>
+                  <th>Consent Evidence</th>
+                  <th>Quick Actions</th>
+                </tr>
+              </thead>
+              <tbody id="customers-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- VIEW 5: MESSAGE LOGS, TEMPLATES & SAFETY CONTROLS                 -->
+      <!-- ================================================================= -->
+      <section id="tab-logs" class="section-view">
+        <div class="workspace-grid">
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Synced & Registered WhatsApp Templates</div>
+                <div class="card-subtitle">Click "Sync from Meta" whenever a template's status changes in Meta WhatsApp Manager.</div>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="syncMetaTemplates()">🔄 Sync from Meta</button>
+            </div>
+            <div class="table-container" style="max-height:230px;overflow-y:auto;">
+              <table>
+                <thead>
+                  <tr><th>ID</th><th>Template Name</th><th>Category</th><th>Meta Status</th><th>Variables</th></tr>
+                </thead>
+                <tbody id="templates-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:0;">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Emergency Global Kill Switch</div>
+                <div class="card-subtitle">Instantly halts all outbound campaigns, automated replies, and scheduled messages.</div>
+              </div>
+            </div>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">
+              Use the emergency kill switch if you ever need to pause all outbound WhatsApp traffic across the entire Maxis Gold Jewellery backend immediately.
+            </p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-danger" onclick="setKillSwitch(true)">
+                🛑 Activate Kill Switch (HALT ALL)
+              </button>
+              <button class="btn btn-primary" onclick="setKillSwitch(false)">
+                ✅ Resume Normal Operation
+              </button>
+            </div>
+            <div id="killswitch-feedback" style="display:none;"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Live Inbound & Outbound Message Audit Log</div>
+              <div class="card-subtitle">Real-time record of every message, compliance verdict, and Meta Graph API response.</div>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="loadMessages()">↻ Refresh Log</button>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Direction</th>
+                  <th>Recipient Phone</th>
+                  <th>Category / Type</th>
+                  <th>Template / Message Content</th>
+                  <th>Status</th>
+                  <th>Compliance Verdict / Meta Response</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody id="messages-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- APPLICATION JAVASCRIPT                                                -->
+  <!-- ===================================================================== -->
+  <script>
+    let authToken = localStorage.getItem("kap_jwt_token") || "";
+    let cachedTemplates = [];
+    let cachedCustomers = [];
+
+    function notifyToast(message, type = "success") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.innerHTML = message;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        setTimeout(() => toast.remove(), 250);
+      }, 4200);
+    }
+
+    function authHeaders(extra = {}) {
+      const headers = { ...extra };
+      if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+      return headers;
+    }
+
+    async function apiFetch(url, options = {}) {
+      options.headers = authHeaders(options.headers || {});
+      const res = await fetch(url, options);
+      if (res.status === 401) {
+        showLoginModal();
+        throw new Error("Session expired. Please sign in.");
+      }
+      return res;
+    }
+
+    function showLoginModal() {
+      document.getElementById("login-overlay").style.display = "flex";
+    }
+
+    async function performLogin() {
+      const username = document.getElementById("login-username").value.trim();
+      const password = document.getElementById("login-password").value;
+      const errBox = document.getElementById("login-error");
+      errBox.style.display = "none";
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Invalid credentials");
+        authToken = data.access_token;
+        localStorage.setItem("kap_jwt_token", authToken);
+        document.getElementById("login-overlay").style.display = "none";
+        notifyToast("Signed in to Maxis Gold Jewellery Automation Studio");
+        await refreshAllData();
+      } catch (err) {
+        errBox.textContent = err.message;
+        errBox.style.display = "block";
+      }
+    }
+
+    function switchTab(tabId, title, subtitle, btnEl) {
+      document.querySelectorAll(".section-view").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
+      document.getElementById(tabId).classList.add("active");
+      btnEl.classList.add("active");
+      document.getElementById("topbar-title").textContent = title;
+      document.getElementById("topbar-subtitle").textContent = subtitle;
+      refreshAllData();
+    }
+
+    function showFeedback(elId, type, htmlContent) {
+      const el = document.getElementById(elId);
+      el.className = `alert-banner ${type}`;
+      el.innerHTML = htmlContent;
+      el.style.display = "block";
+    }
+
+    function onFileSelected(input) {
+      const dz = document.getElementById("excel-dropzone");
+      const title = document.getElementById("dropzone-filename");
+      if (input.files && input.files[0]) {
+        dz.classList.add("has-file");
+        title.textContent = `Selected: ${input.files[0].name}`;
+      } else {
+        dz.classList.remove("has-file");
+        title.textContent = "Click to choose your Excel (.xlsx) or CSV (.csv) file";
+      }
+    }
+
+    function selectExecMode(mode) {
+      document.getElementById("exec-mode").value = mode;
+      const dryCard = document.getElementById("mode-card-dry");
+      const liveCard = document.getElementById("mode-card-live");
+      dryCard.className = "mode-card" + (mode === "dry_run" ? " selected-dry" : "");
+      liveCard.className = "mode-card" + (mode === "live" ? " selected-live" : "");
+    }
+
+    function updateTemplateBubblePreview() {
+      const selId = parseInt(document.getElementById("import-template-id").value, 10);
+      const tpl = cachedTemplates.find(t => t.id === selId);
+      if (!tpl) return;
+      document.getElementById("preview-bubble-meta").textContent =
+        `Template: ${tpl.name} (${tpl.language}) • ${tpl.category} • Status: ${tpl.approval_status}`;
+      document.getElementById("preview-bubble-header").textContent =
+        tpl.header_text || "Maxis Gold Jewellery";
+      const hydratedBody = (tpl.body_text || "").replace(/\{\{1\}\}/g, "<strong>Priya</strong>");
+      document.getElementById("preview-bubble-body").innerHTML = hydratedBody;
+      document.getElementById("preview-bubble-footer").textContent =
+        tpl.footer_text || "Reply STOP to opt out";
+    }
+
+    async function loadHealthAndAnalytics() {
+      try {
+        const hRes = await fetch("/health");
+        const h = await hRes.json();
+
+        const modePill = document.getElementById("pill-mode");
+        if (h.outbound_messages_enabled && !h.dry_run_mode) {
+          modePill.className = "status-pill live";
+          modePill.innerHTML = `<span class="status-dot"></span><span>Meta Cloud API: LIVE</span>`;
+        } else {
+          modePill.className = "status-pill dry";
+          modePill.innerHTML = `<span class="status-dot"></span><span>Mode: Safe Dry-Run</span>`;
+        }
+
+        const ksPill = document.getElementById("pill-killswitch");
+        if (h.global_kill_switch) {
+          ksPill.className = "status-pill danger";
+          ksPill.innerHTML = `<span class="status-dot"></span><span>Kill Switch: HALTED</span>`;
+        } else {
+          ksPill.className = "status-pill live";
+          ksPill.innerHTML = `<span class="status-dot"></span><span>Kill Switch: OFF</span>`;
+        }
+
+        const aRes = await apiFetch("/api/analytics");
+        const a = await aRes.json();
+        const rl = (a.compliance_status && a.compliance_status.rate_limits) || {};
+        const remCap = rl.remaining_portfolio_capacity ?? 250;
+        const maxCap = rl.portfolio_24h_unique_recipient_limit ?? 250;
+        const pct = Math.max(0, Math.min(100, Math.round((remCap / maxCap) * 100)));
+
+        document.getElementById("sidebar-cap-text").textContent = `${remCap} / ${maxCap}`;
+        document.getElementById("sidebar-cap-bar").style.width = `${pct}%`;
+
+        document.getElementById("kpi-capacity").textContent = `${remCap} / ${maxCap}`;
+        document.getElementById("kpi-optedin").textContent = a.marketing_opted_in_customers;
+        document.getElementById("kpi-outbound").textContent = a.total_outbound_messages;
+        document.getElementById("kpi-inbound-note").textContent =
+          `Inbound: ${a.total_inbound_messages} • Delivered/Sent: ${a.sent + a.delivered + a.read + a.dry_run}`;
+        document.getElementById("kpi-blocked").textContent = a.blocked_sends_due_to_compliance;
+        document.getElementById("kpi-optout-note").textContent = `Opted-out customers: ${a.opt_outs}`;
+      } catch (e) {}
+    }
+
+    async function loadTemplates() {
+      try {
+        const res = await apiFetch("/api/templates");
+        cachedTemplates = await res.json();
+
+        const importSelect = document.getElementById("import-template-id");
+        const quickSelect = document.getElementById("quick-template-name");
+        const prevSelectedId = importSelect.value;
+        const prevQuickName = quickSelect.value;
+        importSelect.innerHTML = "";
+        quickSelect.innerHTML = "";
+
+        const tbody = document.getElementById("templates-tbody");
+        tbody.innerHTML = "";
+
+        const hasLiveMeta = cachedTemplates.some(t => t.name === "kanti_auto_parts");
+
+        cachedTemplates.forEach(t => {
+          const opt1 = document.createElement("option");
+          opt1.value = t.id;
+          opt1.textContent = `#${t.id} — ${t.name} [${t.language}] (${t.category} • ${t.approval_status})`;
+          if (prevSelectedId && String(t.id) === String(prevSelectedId)) {
+            opt1.selected = true;
+          } else if (!prevSelectedId && hasLiveMeta && t.name === "kanti_auto_parts") {
+            opt1.selected = true;
+          } else if (!prevSelectedId && !hasLiveMeta && t.name === "kap_seasonal_parts_campaign") {
+            opt1.selected = true;
+          }
+          importSelect.appendChild(opt1);
+
+          const opt2 = document.createElement("option");
+          opt2.value = t.name;
+          opt2.textContent = `${t.name} [${t.language}] (${t.category} • ${t.approval_status})`;
+          if (prevQuickName && t.name === prevQuickName) {
+            opt2.selected = true;
+          } else if (!prevQuickName && hasLiveMeta && t.name === "kanti_auto_parts") {
+            opt2.selected = true;
+          }
+          quickSelect.appendChild(opt2);
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="mono">#${t.id}</td>
+            <td><strong>${t.name}</strong> <span class="badge badge-neutral">${t.language}</span></td>
+            <td><span class="badge badge-blue">${t.category}</span></td>
+            <td><span class="badge ${t.approval_status === 'APPROVED' ? 'badge-success' : 'badge-warning'}">${t.approval_status}</span></td>
+            <td class="mono" style="font-size:11.5px;">${(t.variable_definitions || []).join(", ") || "None"}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+        updateTemplateBubblePreview();
+      } catch (e) {}
+    }
+
+    async function syncMetaTemplates() {
+      try {
+        notifyToast("Syncing templates from Meta WhatsApp Business Account...", "warning");
+        const res = await apiFetch("/api/templates/sync", { method: "POST" });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Template sync failed");
+        await loadTemplates();
+        const msg = data.synced
+          ? `Synced ${data.templates_updated} templates from your Meta WABA account!`
+          : data.reason;
+        notifyToast(msg, "success");
+        showFeedback("import-feedback", "success", `<strong>Meta Sync Complete:</strong> ${msg}`);
+      } catch (err) {
+        notifyToast(err.message, "error");
+        showFeedback("import-feedback", "error", `<strong>Meta Sync Error:</strong> ${err.message}`);
+      }
+    }
+
+    async function uploadExcelAndPrepareCampaign() {
+      const fileInput = document.getElementById("import-file");
+      if (!fileInput.files || !fileInput.files[0]) {
+        notifyToast("Please select an Excel (.xlsx) or CSV (.csv) file first", "error");
+        showFeedback("import-feedback", "error", "Please click the dropzone above to choose your .xlsx or .csv file.");
+        return;
+      }
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+      formData.append("prepare_campaign", "true");
+      formData.append("campaign_name", document.getElementById("import-campaign-name").value.trim() || "Maxis Gold Jewellery Campaign");
+      formData.append("campaign_purpose", document.getElementById("import-campaign-purpose").value.trim() || "VIP showroom outreach");
+      const tplId = document.getElementById("import-template-id").value;
+      if (tplId) formData.append("template_id", tplId);
+
+      try {
+        showFeedback("import-feedback", "warning", "Validating +91 phone numbers, duplicates, and consent proof...");
+        const res = await apiFetch("/api/customers/import", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Import failed");
+
+        document.getElementById("sum-total").textContent = data.total_imported;
+        document.getElementById("sum-valid").textContent = data.valid_phone_numbers;
+        document.getElementById("sum-dup").textContent = data.duplicate_contacts;
+        document.getElementById("sum-noconsent").textContent = data.missing_consent;
+        document.getElementById("sum-optout").textContent = data.opted_out_contacts;
+        document.getElementById("sum-eligible").textContent = data.eligible_contacts;
+
+        const tbody = document.getElementById("eligible-recipients-tbody");
+        tbody.innerHTML = "";
+        if (!data.eligible_recipients || data.eligible_recipients.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--danger);padding:16px;">0 eligible contacts found. Make sure marketing_consent=yes and consent_evidence is filled, or grant opt-in in the Customers tab.</td></tr>`;
+        } else {
+          data.eligible_recipients.forEach(r => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td class="mono">#${r.customer_id}</td>
+              <td class="mono"><strong>${r.phone_number}</strong></td>
+              <td>${r.name || "-"}</td>
+              <td><span class="badge badge-success">✓ Verified</span> ${r.consent_evidence || ""}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        }
+
+        if (data.campaign_preview) {
+          document.getElementById("exec-campaign-id").value = data.campaign_preview.campaign_id;
+          document.getElementById("preview-template-label").textContent =
+            `Campaign #${data.campaign_preview.campaign_id} • ${data.campaign_preview.template_name}`;
+        }
+
+        notifyToast(`Prepared Campaign Preview: ${data.eligible_contacts} eligible contacts ready!`);
+        showFeedback(
+          "import-feedback",
+          "success",
+          `<strong>Upload & Preview Ready!</strong> ${data.eligible_contacts} of ${data.total_imported} contacts are eligible. ` +
+          `<strong>0 messages sent automatically.</strong> Click <em>Confirm & Execute Campaign Now</em> on the right to launch.`
+        );
+        await refreshAllData();
+      } catch (err) {
+        notifyToast(err.message, "error");
+        showFeedback("import-feedback", "error", `<strong>Import Error:</strong> ${err.message}`);
+      }
+    }
+
+    async function executeConfirmedCampaign() {
+      const campId = document.getElementById("exec-campaign-id").value;
+      const mode = document.getElementById("exec-mode").value;
+      const confirmed = document.getElementById("exec-confirm-check").checked;
+
+      if (!campId) {
+        notifyToast("Please upload a sheet or load a Campaign ID first", "error");
+        showFeedback("exec-feedback", "error", "Please enter or load a Campaign ID first.");
+        return;
+      }
+      if (!confirmed) {
+        notifyToast("Please check the authorization checkbox first", "warning");
+        showFeedback("exec-feedback", "error", "Please check the confirmation checkbox to authorize execution.");
+        return;
+      }
+
+      const isDryRun = mode !== "live";
+      try {
+        showFeedback("exec-feedback", "warning", `Launching Campaign #${campId} (${isDryRun ? "Safe Dry-Run" : "LIVE Meta Cloud API"})...`);
+        const res = await apiFetch(`/api/campaigns/${campId}/execute`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            confirm_execution: true,
+            dry_run: isDryRun,
+            authorize_live_send: !isDryRun,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Campaign execution failed");
+
+        const resultType = data.failed_count > 0 && data.sent_count === 0 ? "warning" : "success";
+        notifyToast(
+          `Campaign #${data.id}: Sent ${data.sent_count}, Blocked ${data.blocked_count}, Failed ${data.failed_count}`,
+          resultType
+        );
+        showFeedback(
+          "exec-feedback",
+          resultType,
+          `<strong>Campaign #${data.id} Finished (${isDryRun ? "Dry-Run" : "LIVE Meta Delivery"})</strong><br/>` +
+          `✅ Sent: <strong>${data.sent_count}</strong> &nbsp;|&nbsp; 🛡️ Blocked by Compliance: <strong>${data.blocked_count}</strong> &nbsp;|&nbsp; ⚠️ Failed: <strong>${data.failed_count}</strong>` +
+          (data.failed_count > 0 ? `<br/><span style="font-size:12px;">Tip: Check the <strong>Logs & Safety Controls</strong> tab to view the exact Meta API response code.</span>` : "")
+        );
+        await refreshAllData();
+      } catch (err) {
+        notifyToast(err.message, "error");
+        showFeedback("exec-feedback", "error", `<strong>Execution Blocked:</strong> ${err.message}`);
+      }
+    }
+
+    async function loadCampaigns() {
+      try {
+        const res = await apiFetch("/api/campaigns");
+        const list = await res.json();
+        const tbody = document.getElementById("campaigns-tbody");
+        tbody.innerHTML = "";
+        list.forEach(c => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="mono"><strong>#${c.id}</strong></td>
+            <td><strong>${c.name}</strong></td>
+            <td><span class="badge badge-blue">${c.category}</span></td>
+            <td><span class="badge ${c.status === 'completed' ? 'badge-success' : 'badge-warning'}">${c.status}</span></td>
+            <td class="mono">${c.total_contacts_selected}</td>
+            <td class="mono"><strong style="color:var(--wa-green-dark);">${c.eligible_recipient_count}</strong></td>
+            <td class="mono"><strong style="color:var(--danger);">${c.blocked_count || c.excluded_recipient_count}</strong></td>
+            <td class="mono"><strong>${c.sent_count}</strong></td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="selectCampaignForExecution(${c.id})">
+                Load into Executor
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {}
+    }
+
+    async function selectCampaignForExecution(campaignId) {
+      document.getElementById("exec-campaign-id").value = campaignId;
+      try {
+        const res = await apiFetch(`/api/campaigns/${campaignId}/preview`, { method: "POST" });
+        if (res.ok) {
+          const p = await res.json();
+          document.getElementById("sum-total").textContent = p.total_contacts_selected;
+          document.getElementById("sum-valid").textContent = p.total_contacts_selected - p.contacts_with_invalid_phone_numbers;
+          document.getElementById("sum-dup").textContent = 0;
+          document.getElementById("sum-noconsent").textContent = p.contacts_without_consent;
+          document.getElementById("sum-optout").textContent = p.opted_out_contacts;
+          document.getElementById("sum-eligible").textContent = p.eligible_recipient_count;
+          document.getElementById("preview-template-label").textContent =
+            `Campaign #${p.campaign_id} • ${p.template_name}`;
+
+          const tbody = document.getElementById("eligible-recipients-tbody");
+          tbody.innerHTML = "";
+          (p.eligible_recipients || []).forEach(r => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td class="mono">#${r.customer_id}</td>
+              <td class="mono"><strong>${r.phone_number}</strong></td>
+              <td>${r.name || "-"}</td>
+              <td><span class="badge badge-success">✓ Verified</span> ${r.consent_evidence || ""}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+          notifyToast(`Loaded Campaign #${campaignId} (${p.eligible_recipient_count} eligible contacts)`);
+        }
+      } catch (e) {}
+    }
+
+    /* VIEW 2: AUTO-REPLY SIMULATOR */
+    function setSimText(text, autoRun = false) {
+      document.getElementById("sim-text").value = text;
+      if (autoRun) runIncomingSimulation();
+    }
+
+    async function runIncomingSimulation() {
+      const phone = document.getElementById("sim-phone").value.trim();
+      const name = document.getElementById("sim-name").value.trim();
+      const text = document.getElementById("sim-text").value.trim();
+      if (!text) return;
+
+      const feed = document.getElementById("sim-chat-feed");
+      const userBubble = document.createElement("div");
+      userBubble.className = "wa-msg-bubble outbound";
+      userBubble.innerHTML = `<div class="wa-msg-header">${name} (${phone})</div>${text}`;
+      feed.appendChild(userBubble);
+      feed.scrollTop = feed.scrollHeight;
+
+      try {
+        const res = await apiFetch("/api/automation/simulate-incoming", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone_number: phone, customer_name: name, message_text: text }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Simulation failed");
+
+        const botBubble = document.createElement("div");
+        botBubble.className = "wa-msg-bubble";
+        if (data.action === "opt_out_processed") {
+          botBubble.innerHTML =
+            `<div class="wa-msg-header" style="color:var(--danger);">🛑 Automatic Opt-Out Enforced</div>` +
+            `Customer sent <code>${data.incoming_text}</code>. Marketing & utility consent immediately revoked and scheduled sends cancelled.`;
+        } else {
+          botBubble.innerHTML =
+            `<div class="wa-msg-header">Maxis Gold Jewellery Support ${data.escalated_to_human ? '<span class="badge badge-warning">Escalated to Specialist</span>' : '<span class="badge badge-success">Auto-Replied</span>'}</div>` +
+            `${data.automated_reply || "<em>(Customer is opted out — no automated reply sent)</em>"}`;
+        }
+        feed.appendChild(botBubble);
+        feed.scrollTop = feed.scrollHeight;
+        await refreshAllData();
+      } catch (err) {
+        notifyToast(err.message, "error");
+      }
+    }
+
+    async function loadAutomationRules() {
+      try {
+        const res = await apiFetch("/api/automation/rules");
+        const rules = await res.json();
+        const tbody = document.getElementById("rules-tbody");
+        tbody.innerHTML = "";
+        rules.forEach(r => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="mono">${r.priority}</td>
+            <td><strong>${r.name}</strong><br/><span style="font-size:11px;color:var(--text-muted);">${r.rule_type}</span></td>
+            <td><code>${(r.keywords || []).join(", ")}</code></td>
+            <td>${r.response_text}</td>
+            <td>${r.requires_human_escalation ? '<span class="badge badge-warning">Human Escalation</span>' : '<span class="badge badge-neutral">Instant Bot</span>'}</td>
+            <td>${r.is_active ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-danger">Paused</span>'}</td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="toggleAutomationRule(${r.id}, ${!r.is_active})">
+                ${r.is_active ? "Pause" : "Activate"}
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {}
+    }
+
+    async function saveAutomationRule() {
+      const name = document.getElementById("rule-name").value.trim();
+      const priority = parseInt(document.getElementById("rule-priority").value || "50", 10);
+      const keywords = document.getElementById("rule-keywords").value.split(",").map(s => s.trim()).filter(Boolean);
+      const response_text = document.getElementById("rule-response").value.trim();
+      const requires_human_escalation = document.getElementById("rule-escalate").checked;
+
+      if (!name || !keywords.length || !response_text) {
+        notifyToast("Fill in Rule Name, Keywords, and Response Text", "error");
+        return;
+      }
+
+      try {
+        const res = await apiFetch("/api/automation/rules", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            rule_type: "keyword",
+            keywords,
+            response_text,
+            requires_human_escalation,
+            priority,
+            is_active: true,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Failed to save rule");
+        notifyToast(`Saved automation rule: ${data.name}`);
+        showFeedback("rule-feedback", "success", `Saved keyword rule <strong>${data.name}</strong>!`);
+        await loadAutomationRules();
+      } catch (err) {
+        showFeedback("rule-feedback", "error", err.message);
+      }
+    }
+
+    async function toggleAutomationRule(ruleId, newState) {
+      await apiFetch(`/api/automation/rules/${ruleId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ is_active: newState }),
+      });
+      notifyToast(`Rule ${newState ? "activated" : "paused"}`);
+      await loadAutomationRules();
+    }
+
+    /* VIEW 3: QUICK SEND */
+    function toggleQuickSendFields() {
+      const mode = document.getElementById("quick-msg-mode").value;
+      const isText = mode === "text_service";
+      document.getElementById("quick-template-fields").style.display = isText ? "none" : "block";
+      document.getElementById("quick-text-fields").style.display = isText ? "block" : "none";
+    }
+
+    async function sendQuickAutomatedMessage() {
+      const customer_id = parseInt(document.getElementById("quick-customer-id").value, 10);
+      const mode = document.getElementById("quick-msg-mode").value;
+
+      let payload = { customer_id };
+      if (mode === "text_service") {
+        payload.message_type = "text";
+        payload.category = "service";
+        payload.content = document.getElementById("quick-text-content").value.trim();
+      } else {
+        payload.message_type = "template";
+        const selectedTplName = document.getElementById("quick-template-name").value;
+        const matchedTpl = cachedTemplates.find(t => t.name === selectedTplName);
+        payload.category = matchedTpl ? matchedTpl.category.toLowerCase() : "marketing";
+        payload.template_name = selectedTplName;
+        payload.template_language = matchedTpl ? matchedTpl.language : "en_US";
+        const rawParams = document.getElementById("quick-template-params").value.trim();
+        const expectedCount = matchedTpl && matchedTpl.variable_definitions ? matchedTpl.variable_definitions.length : 0;
+        payload.template_params = expectedCount === 0 ? [] : (rawParams ? rawParams.split(",").map(s => s.trim()) : []);
+      }
+
+      try {
+        const res = await apiFetch("/api/messages/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          const reason = (data.detail && data.detail.reason) ? data.detail.reason : JSON.stringify(data.detail);
+          throw new Error(reason);
+        }
+        notifyToast(`Message #${data.id} processed (${data.status})`);
+        showFeedback(
+          "quick-send-feedback",
+          data.status === "failed" ? "warning" : "success",
+          `<strong>Message #${data.id} • Status: ${data.status.toUpperCase()}</strong><br/>` +
+          `WhatsApp Message ID: <code class="mono">${data.whatsapp_message_id || "N/A"}</code>` +
+          (data.error_message ? `<br/><span style="color:var(--danger);">Meta API Error: ${data.error_code} — ${data.error_message}</span>` : "")
+        );
+        await refreshAllData();
+      } catch (err) {
+        notifyToast("Blocked by Compliance Engine", "error");
+        showFeedback("quick-send-feedback", "error", `<strong>Blocked by Compliance Engine:</strong><br/>${err.message}`);
+      }
+    }
+
+    /* VIEW 4: CUSTOMERS & CONSENT */
+    async function loadCustomers() {
+      try {
+        const res = await apiFetch("/api/customers");
+        cachedCustomers = await res.json();
+        const tbody = document.getElementById("customers-tbody");
+        const quickSelect = document.getElementById("quick-customer-id");
+        tbody.innerHTML = "";
+        quickSelect.innerHTML = "";
+
+        cachedCustomers.forEach(c => {
+          const opt = document.createElement("option");
+          opt.value = c.id;
+          opt.textContent = `#${c.id} — ${c.name || "Customer"} (${c.phone_number})`;
+          quickSelect.appendChild(opt);
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="mono">#${c.id}</td>
+            <td class="mono"><strong>${c.phone_number}</strong></td>
+            <td><strong>${c.name || "-"}</strong></td>
+            <td>${c.service_window_open ? '<span class="badge badge-success">24h Window OPEN</span>' : '<span class="badge badge-neutral">Window Closed</span>'}</td>
+            <td>${c.marketing_consent ? '<span class="badge badge-success">✓ Opted-In</span>' : '<span class="badge badge-danger">No Consent</span>'}</td>
+            <td>${c.utility_consent ? '<span class="badge badge-success">✓ Opted-In</span>' : '<span class="badge badge-danger">No Consent</span>'}</td>
+            <td>${c.opted_out ? '<span class="badge badge-danger">OPTED OUT</span>' : '<span class="badge badge-success">Eligible</span>'}</td>
+            <td style="font-size:12px;color:var(--text-muted);">${c.consent_evidence || "None"}</td>
+            <td>
+              <button class="btn btn-outline btn-sm" onclick="quickGrantConsent(${c.id})">✓ Grant Opt-In</button>
+              <button class="btn btn-outline btn-sm" style="color:var(--danger);" onclick="quickOptOut(${c.id})">Opt Out</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {}
+    }
+
+    async function createCustomerFromUI() {
+      const rawPhone = document.getElementById("cust-phone").value.trim();
+      const phone = rawPhone.startsWith("+") ? rawPhone : `+91${rawPhone.replace(/^0+/, "")}`;
+      const name = document.getElementById("cust-name").value.trim();
+      const source = document.getElementById("cust-source").value.trim() || "maxis_admin_ui";
+      const evidence = document.getElementById("cust-evidence").value.trim();
+      const mkt = document.getElementById("cust-mkt-consent").checked;
+      const util = document.getElementById("cust-util-consent").checked;
+
+      try {
+        const res = await apiFetch("/api/customers", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone_number: phone,
+            name,
+            marketing_consent: mkt,
+            utility_consent: util,
+            consent_method: "admin_verified_entry",
+            consent_source: source,
+            consent_evidence: evidence || null,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.detail || "Failed to add customer");
+        notifyToast(`Added customer ${data.phone_number}`);
+        showFeedback("cust-feedback", "success", `Saved customer <strong>${data.phone_number}</strong>!`);
+        await refreshAllData();
+      } catch (err) {
+        notifyToast(err.message, "error");
+        showFeedback("cust-feedback", "error", err.message);
+      }
+    }
+
+    async function quickGrantConsent(customerId) {
+      await apiFetch(`/api/customers/${customerId}/consent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          marketing_consent: true,
+          utility_consent: true,
+          collection_method: "admin_dashboard_verified",
+          source: "maxis_admin_studio",
+          evidence: "Verified customer opt-in recorded by administrator",
+        }),
+      });
+      notifyToast(`Granted Marketing & Utility Opt-In for Customer #${customerId}`);
+      const activeCampId = document.getElementById("exec-campaign-id").value;
+      if (activeCampId) await selectCampaignForExecution(activeCampId);
+      await refreshAllData();
+    }
+
+    async function quickOptOut(customerId) {
+      await apiFetch(`/api/customers/${customerId}/opt-out`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categories: "ALL", reason: "Opted out via Maxis Gold Jewellery Admin Studio" }),
+      });
+      notifyToast(`Customer #${customerId} opted out & scheduled sends cancelled`, "warning");
+      const activeCampId = document.getElementById("exec-campaign-id").value;
+      if (activeCampId) await selectCampaignForExecution(activeCampId);
+      await refreshAllData();
+    }
+
+    /* VIEW 5: LOGS & KILL SWITCH */
+    async function loadMessages() {
+      try {
+        const res = await apiFetch("/api/messages?limit=50");
+        const msgs = await res.json();
+        const tbody = document.getElementById("messages-tbody");
+        tbody.innerHTML = "";
+        msgs.forEach(m => {
+          let badgeClass = "badge-neutral";
+          if (m.status === "sent" || m.status === "delivered" || m.status === "read") badgeClass = "badge-success";
+          else if (m.status === "dry_run") badgeClass = "badge-warning";
+          else if (m.status === "blocked_compliance" || m.status === "failed" || m.status === "cancelled_opt_out") badgeClass = "badge-danger";
+
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td class="mono">#${m.id}</td>
+            <td><span class="badge ${m.direction === 'inbound' ? 'badge-blue' : 'badge-success'}">${m.direction}</span></td>
+            <td class="mono"><strong>${m.recipient_phone}</strong></td>
+            <td>${m.category} / ${m.message_type}</td>
+            <td>${m.template_name ? `<strong>Template:</strong> <code class="mono">${m.template_name}</code>` : (m.content || "-")}</td>
+            <td><span class="badge ${badgeClass}">${m.status}</span></td>
+            <td style="font-size:12px;">
+              ${m.compliance_approved ? '<span style="color:var(--wa-green-dark);font-weight:700;">✓ Compliance Approved</span>' : `<span style="color:var(--danger);font-weight:700;">${m.compliance_rejection_reason || "Blocked"}</span>`}
+              ${m.error_message ? `<div style="color:var(--danger);margin-top:2px;"><strong>${m.error_code}:</strong> ${m.error_message}</div>` : ""}
+            </td>
+            <td style="font-size:11.5px;color:var(--text-muted);">${new Date(m.created_at).toLocaleTimeString()}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {}
+    }
+
+    async function setKillSwitch(enabled) {
+      const res = await apiFetch("/api/compliance/kill-switch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          enabled,
+          reason: enabled ? "Emergency halt activated from Automation Studio" : "Normal operation resumed from Automation Studio",
+        }),
+      });
+      const data = await res.json();
+      notifyToast(
+        data.global_kill_switch ? "GLOBAL KILL SWITCH ACTIVATED" : "Kill Switch deactivated — normal operation resumed",
+        data.global_kill_switch ? "error" : "success"
+      );
+      showFeedback(
+        "killswitch-feedback",
+        enabled ? "error" : "success",
+        `Global Emergency Kill Switch is now <strong>${data.global_kill_switch ? "ACTIVE (All Outbound Halted)" : "OFF (Normal Operation)"}</strong>`
+      );
+      await loadHealthAndAnalytics();
+    }
+
+    async function refreshAllData() {
+      await loadHealthAndAnalytics();
+      await Promise.all([
+        loadTemplates(),
+        loadCampaigns(),
+        loadAutomationRules(),
+        loadCustomers(),
+        loadMessages(),
+      ]);
+    }
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      if (!authToken) {
+        await performLogin();
+      } else {
+        await refreshAllData();
+      }
+    });
+  </script>
+</body>
+</html>

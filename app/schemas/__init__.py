@@ -17,8 +17,10 @@ from app.schemas.customer import (
     ConsentUpdateRequest,
     CustomerCreate,
     CustomerHistoryResponse,
+    CustomerImportSummaryResponse,
     CustomerResponse,
     CustomerUpdate,
+    EligibleRecipientItem,
     OptOutRequest,
 )
 from app.schemas.message import MessageResponse, MessageSendRequest

@@ -1,0 +1,5 @@
+phone_number,name,marketing_consent,utility_consent,consent_method,consent_source,consent_evidence,opted_out
+9876543210,Rajesh Sharma,yes,yes,pos_signed_form,maxis_showroom_counter,Signed showroom invoice opt-in #MGJ-2026-101,no
++91 98111-22334,Priya Nair,yes,yes,website_optin_checkbox,maxis_website,Website form opt-in ID #WEB-882,no
+09822233445,Amit Verma (No Consent Proof),yes,no,,,,no
+919833344556,Suresh Patel (Opted Out),no,no,pos_signed_form,maxis_showroom_counter,Customer requested opt-out,yes

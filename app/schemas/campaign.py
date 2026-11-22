@@ -37,6 +37,8 @@ class CampaignPreviewResponse(BaseModel):
     eligible_recipient_count: int
     excluded_recipient_count: int
     exclusion_reasons: dict[str, int]
+    eligible_recipients: list[dict] = Field(default_factory=list)
+    remaining_24h_portfolio_capacity: int = 250
     requires_admin_confirmation: bool = True
 
 
@@ -44,6 +46,14 @@ class CampaignExecuteRequest(BaseModel):
     confirm_execution: bool = Field(
         ...,
         description="Administrator must explicitly set confirm_execution=True after reviewing preview results.",
+    )
+    dry_run: bool = Field(
+        default=True,
+        description="Defaults to True (dry-run mode). Live messages are never sent unless dry_run=False AND authorize_live_send=True.",
+    )
+    authorize_live_send: bool = Field(
+        default=False,
+        description="Explicit administrator authorization required when dry_run=False to send live WhatsApp messages.",
     )
     dry_run_override: Optional[bool] = Field(
         default=None,

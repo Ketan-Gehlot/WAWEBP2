@@ -1,6 +1,6 @@
 """Customer Management, Consent Collection, and Opt-Out Administrative Endpoints."""
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, Request, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.core.compliance import is_24h_service_window_open
@@ -13,12 +13,14 @@ from app.schemas.customer import (
     ConsentUpdateRequest,
     CustomerCreate,
     CustomerHistoryResponse,
+    CustomerImportSummaryResponse,
     CustomerResponse,
     CustomerUpdate,
     OptOutRequest,
 )
 from app.services.consent_service import ConsentService
 from app.services.customer_service import CustomerService
+from app.services.import_service import CustomerImportService
 
 router = APIRouter(prefix="/api/customers", tags=["Customers & Consent"])
 
@@ -90,6 +92,71 @@ def create_customer(
         ip_address=request.client.host if request.client else None,
     )
     return _to_customer_response(customer)
+
+
+@router.post(
+    "/import",
+    response_model=CustomerImportSummaryResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Import customers from Excel (.xlsx) or CSV (.csv) with strict consent validation and optional campaign preview",
+)
+async def import_customers_file(
+    request: Request,
+    file: UploadFile = File(..., description="Excel (.xlsx) or CSV (.csv) customer contact file"),
+    prepare_campaign: bool = Form(
+        default=False,
+        description="If True, prepares a campaign preview for the eligible imported contacts (never sends automatically)",
+    ),
+    campaign_name: Optional[str] = Form(default=None),
+    campaign_purpose: Optional[str] = Form(default=None),
+    template_id: Optional[int] = Form(default=None),
+    db: Session = Depends(get_db),
+    current_admin: AdminUser = Depends(require_roles("superadmin", "manager")),
+) -> CustomerImportSummaryResponse:
+    """
+    Upload an Excel (.xlsx) or CSV (.csv) file of customers:
+    - Reads data using pandas and openpyxl.
+    - Normalizes Indian phone numbers to E.164 (+91XXXXXXXXXX).
+    - Validates phone numbers and detects duplicates.
+    - Validates marketing consent using explicit consent evidence.
+    - Excludes customers without valid marketing consent and all opted-out customers.
+    - Stores contacts in the database.
+    - Optionally creates a campaign preview showing eligible recipients.
+    - NEVER sends messages automatically after upload.
+    """
+    file_bytes = await file.read()
+    try:
+        summary = CustomerImportService.import_customers_and_prepare_campaign(
+            db=db,
+            filename=file.filename or "uploaded_contacts.xlsx",
+            file_bytes=file_bytes,
+            actor=current_admin.username,
+            prepare_campaign=prepare_campaign,
+            campaign_name=campaign_name,
+            campaign_purpose=campaign_purpose,
+            template_id=template_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    record_audit_log(
+        db=db,
+        actor=current_admin.username,
+        action="import_customers_file",
+        resource_type="customer_import",
+        details={
+            "filename": summary.filename,
+            "total_imported": summary.total_imported,
+            "valid_phone_numbers": summary.valid_phone_numbers,
+            "duplicate_contacts": summary.duplicate_contacts,
+            "missing_consent": summary.missing_consent,
+            "opted_out_contacts": summary.opted_out_contacts,
+            "eligible_contacts": summary.eligible_contacts,
+            "campaign_preview_created": summary.campaign_preview is not None,
+        },
+        ip_address=request.client.host if request.client else None,
+    )
+    return summary
 
 
 @router.get(

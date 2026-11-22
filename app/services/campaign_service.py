@@ -6,7 +6,9 @@ Enforces:
 - Strict consent eligibility evaluation (never sends simply because an admin uploaded a list).
 - Detailed exclusion breakdown (without consent, opted-out, invalid phone numbers, exceeding restrictions).
 - Explicit administrator confirmation before execution.
-- Revalidation of consent and compliance for every single recipient at execution time.
+- Defaults to dry-run mode and NEVER sends real messages without explicit administrator authorization.
+- Enforces Meta rolling 24-hour unique-recipient portfolio capacity before every send.
+- Rechecks consent and opt-out status immediately before each send.
 """
 from datetime import datetime, timezone
 from typing import Optional
@@ -15,6 +17,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.core.compliance import ComplianceEngine, is_valid_e164_phone, normalize_e164_phone
 from app.core.logging import log_structured_event
+from app.core.rate_limiter import outbound_rate_limiter
 from app.models.campaign import Campaign, CampaignRecipient
 from app.models.customer import Customer
 from app.models.template import MessageTemplate
@@ -71,13 +74,14 @@ class CampaignService:
         - Contacts without consent
         - Opted-out contacts
         - Contacts with invalid phone numbers
-        - Contacts exceeding applicable restrictions
+        - Contacts exceeding applicable restrictions (including Meta 24h unique-recipient limit)
+        - List of eligible recipients
         """
         template = db.query(MessageTemplate).filter(MessageTemplate.id == campaign.template_id).first()
         if not template:
             raise ValueError("Associated message template does not exist.")
 
-        # Validate template eligibility first
+        # Validate template eligibility first (must be APPROVED, active, matching category)
         tpl_verdict = ComplianceEngine.validate_template(
             db=db,
             template_name=template.name,
@@ -123,9 +127,15 @@ class CampaignService:
         invalid_phone_count = 0
         exceeding_restrictions_count = 0
         exclusion_reasons: dict[str, int] = {}
+        eligible_recipients_list: list[dict] = []
 
         def _inc_reason(code: str) -> None:
             exclusion_reasons[code] = exclusion_reasons.get(code, 0) + 1
+
+        portfolio_cap = outbound_rate_limiter.get_portfolio_capacity(db)
+        remaining_portfolio_capacity = portfolio_cap["remaining_portfolio_capacity"]
+        active_unique_recipients = portfolio_cap["active_unique_recipients"]
+        new_unique_allocated = 0
 
         max_recipients = min(settings.MAX_CAMPAIGN_RECIPIENTS, settings.MAX_DAILY_MESSAGES)
 
@@ -170,9 +180,29 @@ class CampaignService:
                     exceeding_restrictions_count += 1
                     reason = "EXCEEDS_CAMPAIGN_OR_DAILY_SENDING_LIMIT"
                     _inc_reason(reason)
+                elif (
+                    phone not in active_unique_recipients
+                    and new_unique_allocated >= remaining_portfolio_capacity
+                ):
+                    exceeding_restrictions_count += 1
+                    reason = "PORTFOLIO_24H_UNIQUE_RECIPIENT_LIMIT_REACHED"
+                    _inc_reason(reason)
                 else:
                     is_eligible = True
                     valid_consent_count += 1
+                    if phone not in active_unique_recipients:
+                        new_unique_allocated += 1
+                    eligible_recipients_list.append(
+                        {
+                            "customer_id": customer.id,
+                            "phone_number": customer.phone_number,
+                            "name": customer.name,
+                            "marketing_consent": customer.marketing_consent,
+                            "utility_consent": customer.utility_consent,
+                            "consent_source": customer.consent_source,
+                            "consent_evidence": customer.consent_evidence,
+                        }
+                    )
 
             db.add(
                 CampaignRecipient(
@@ -207,6 +237,7 @@ class CampaignService:
             eligible=valid_consent_count,
             excluded=total_selected - valid_consent_count,
             exclusion_reasons=exclusion_reasons,
+            remaining_24h_portfolio_capacity=remaining_portfolio_capacity,
         )
 
         return CampaignPreviewResponse(
@@ -225,6 +256,8 @@ class CampaignService:
             eligible_recipient_count=valid_consent_count,
             excluded_recipient_count=total_selected - valid_consent_count,
             exclusion_reasons=exclusion_reasons,
+            eligible_recipients=eligible_recipients_list,
+            remaining_24h_portfolio_capacity=remaining_portfolio_capacity,
             requires_admin_confirmation=True,
         )
 
@@ -238,7 +271,10 @@ class CampaignService:
     ) -> Campaign:
         """
         Execute a previewed campaign after explicit administrator confirmation.
-        Revalidates every eligible recipient through ComplianceEngine at send time.
+        - Defaults to dry-run mode (dry_run=True).
+        - Never sends live messages unless dry_run=False AND authorize_live_send=True.
+        - Rechecks consent, opt-out status, approved template status, and remaining Meta
+          rolling 24-hour unique-recipient portfolio capacity immediately before EACH send.
         """
         if not campaign.preview_completed:
             raise ValueError(
@@ -248,12 +284,45 @@ class CampaignService:
             raise ValueError(
                 "Explicit administrator confirmation (confirm_execution=true) is required to execute a campaign."
             )
-        if campaign.status in {"completed", "executing"}:
-            raise ValueError(f"Campaign is already in '{campaign.status}' state.")
+
+        # Determine effective dry-run mode (default is True)
+        requested_dry_run = (
+            request.dry_run_override
+            if request.dry_run_override is not None
+            else request.dry_run
+        )
+        if requested_dry_run is False and not request.authorize_live_send:
+            raise ValueError(
+                "Live campaign sending requires explicit administrator authorization "
+                "(set authorize_live_send=true when dry_run=false)."
+            )
+        effective_dry_run = bool(requested_dry_run)
+
+        if campaign.status == "executing":
+            raise ValueError("Campaign is currently executing.")
+        if campaign.status == "completed" and campaign.sent_count > 0:
+            raise ValueError("Campaign has already been completed and sent.")
+
+        # Re-evaluate recipient eligibility right before execution so any newly granted consent
+        # or recent opt-out is accurately reflected
+        cls.preview_campaign(db=db, campaign=campaign)
 
         template = db.query(MessageTemplate).filter(MessageTemplate.id == campaign.template_id).first()
         if not template:
             raise ValueError("Campaign template not found.")
+
+        # Revalidate template approval immediately before execution starts
+        tpl_verdict = ComplianceEngine.validate_template(
+            db=db,
+            template_name=template.name,
+            template_language=template.language,
+            expected_category=campaign.category,
+            template_params=campaign.default_template_params,
+        )
+        if not tpl_verdict.allowed:
+            raise ValueError(
+                f"Campaign template failed compliance validation: {tpl_verdict.reason_code} - {tpl_verdict.reason_detail}"
+            )
 
         now = datetime.now(timezone.utc)
         campaign.admin_confirmed = True
@@ -277,8 +346,58 @@ class CampaignService:
         blocked_count = campaign.excluded_recipient_count
 
         for recipient in eligible_recipients:
+            # 1. Recheck customer consent and opt-out status immediately before each send
+            fresh_customer = (
+                db.query(Customer).filter(Customer.id == recipient.customer_id).first()
+                if recipient.customer_id
+                else db.query(Customer).filter(Customer.phone_number == recipient.phone_number).first()
+            )
+            if fresh_customer is not None:
+                db.refresh(fresh_customer)
+
+            if fresh_customer is None or fresh_customer.opted_out:
+                recipient.is_eligible = False
+                recipient.delivery_status = "cancelled_opt_out"
+                recipient.exclusion_reason = "CUSTOMER_OPTED_OUT: Customer opted out prior to send."
+                recipient.processed_at = datetime.now(timezone.utc)
+                blocked_count += 1
+                db.commit()
+                continue
+
+            consent_recheck = ComplianceEngine.check_customer_consent(
+                customer=fresh_customer,
+                category=campaign.category.lower(),
+                window_open=False,
+                message_type="template",
+            )
+            if not consent_recheck.allowed:
+                recipient.is_eligible = False
+                recipient.delivery_status = "blocked_compliance"
+                recipient.exclusion_reason = (
+                    f"{consent_recheck.reason_code}: {consent_recheck.reason_detail}"
+                )
+                recipient.processed_at = datetime.now(timezone.utc)
+                blocked_count += 1
+                db.commit()
+                continue
+
+            # 2. Check remaining Meta rolling 24-hour unique-recipient portfolio capacity before every send
+            cap_ok, _, cap_error = outbound_rate_limiter.check_rolling_24h_unique_recipient_capacity(
+                db=db,
+                recipient_phone=recipient.phone_number,
+            )
+            if not cap_ok:
+                recipient.is_eligible = False
+                recipient.delivery_status = "blocked_compliance"
+                recipient.exclusion_reason = cap_error
+                recipient.processed_at = datetime.now(timezone.utc)
+                blocked_count += 1
+                db.commit()
+                continue
+
+            # 3. Dispatch through MessageService -> ComplianceEngine
             msg_request = MessageSendRequest(
-                customer_id=recipient.customer_id,
+                customer_id=fresh_customer.id,
                 recipient_phone=recipient.phone_number,
                 message_type="template",
                 category=campaign.category.lower(),
@@ -292,7 +411,7 @@ class CampaignService:
                 db=db,
                 request=msg_request,
                 campaign_id=campaign.id,
-                force_dry_run=bool(request.dry_run_override),
+                force_dry_run=effective_dry_run,
             )
             recipient.message_id = msg.id
             recipient.delivery_status = msg.status
@@ -306,6 +425,17 @@ class CampaignService:
                 recipient.exclusion_reason = msg.compliance_rejection_reason
             else:
                 failed_count += 1
+
+        db.commit()
+
+        blocked_count = (
+            db.query(CampaignRecipient)
+            .filter(
+                CampaignRecipient.campaign_id == campaign.id,
+                CampaignRecipient.delivery_status.in_(("blocked_compliance", "cancelled_opt_out")),
+            )
+            .count()
+        )
 
         campaign.sent_count = sent_count
         campaign.failed_count = failed_count
@@ -321,9 +451,13 @@ class CampaignService:
 
         log_structured_event(
             "campaign_executed",
-            f"Campaign {campaign.id} executed by {actor}: sent={sent_count}, failed={failed_count}, blocked={blocked_count}",
+            (
+                f"Campaign {campaign.id} executed by {actor} (dry_run={effective_dry_run}): "
+                f"sent={sent_count}, failed={failed_count}, blocked={blocked_count}"
+            ),
             campaign_id=campaign.id,
             actor=actor,
+            dry_run=effective_dry_run,
             sent_count=sent_count,
             failed_count=failed_count,
             blocked_count=blocked_count,

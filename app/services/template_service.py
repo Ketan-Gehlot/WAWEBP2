@@ -5,6 +5,7 @@ Manages approved, pending, paused, and rejected templates and synchronizes
 with the official Meta Graph API when WABA credentials are configured.
 """
 from datetime import datetime, timezone
+import re
 from typing import Optional
 import httpx
 from sqlalchemy.orm import Session
@@ -16,43 +17,43 @@ from app.schemas.template import TemplateCreate, TemplateUpdate
 
 DEFAULT_KAP_TEMPLATES = [
     {
-        "meta_template_id": "kap_tpl_order_update_001",
+        "meta_template_id": "maxis_tpl_order_update_001",
         "name": "kap_order_status_update",
         "language": "en_US",
         "category": "UTILITY",
         "approval_status": "APPROVED",
         "is_active": True,
         "quality_score": "GREEN",
-        "header_text": "Kanti Auto Parts - Order Update",
-        "body_text": "Hello {{1}}, your Kanti Auto Parts order #{{2}} status has been updated to: {{3}}.",
+        "header_text": "Maxis Gold Jewellery - Order Update",
+        "body_text": "Hello {{1}}, your Maxis Gold Jewellery order #{{2}} status has been updated to: {{3}}.",
         "footer_text": "Reply STOP to opt out of notifications.",
         "variable_definitions": ["customer_name", "order_id", "order_status"],
     },
     {
-        "meta_template_id": "kap_tpl_service_reminder_002",
+        "meta_template_id": "maxis_tpl_service_reminder_002",
         "name": "kap_service_reminder",
         "language": "en_US",
         "category": "UTILITY",
         "approval_status": "APPROVED",
         "is_active": True,
         "quality_score": "GREEN",
-        "header_text": "Kanti Auto Parts - Requested Reminder",
-        "body_text": "Hi {{1}}, this is your requested reminder from Kanti Auto Parts regarding {{2}}.",
+        "header_text": "Maxis Gold Jewellery - Requested Reminder",
+        "body_text": "Hi {{1}}, this is your requested reminder from Maxis Gold Jewellery regarding {{2}}.",
         "footer_text": "Reply STOP to opt out.",
         "variable_definitions": ["customer_name", "reminder_topic"],
     },
     {
-        "meta_template_id": "kap_tpl_seasonal_checkup_003",
+        "meta_template_id": "maxis_tpl_festive_collection_003",
         "name": "kap_seasonal_parts_campaign",
         "language": "en_US",
         "category": "MARKETING",
         "approval_status": "APPROVED",
         "is_active": True,
         "quality_score": "GREEN",
-        "header_text": "Kanti Auto Parts - Seasonal Maintenance",
+        "header_text": "Maxis Gold Jewellery - Festive & Bridal Collection",
         "body_text": (
-            "Hello {{1}}, prepare your vehicle for the season with genuine OEM filters and brake components "
-            "at Kanti Auto Parts. Reply with your vehicle model to speak with a specialist."
+            "Hello {{1}}, explore our new BIS Hallmarked 22K Gold and Bridal Diamond collection "
+            "at Maxis Gold Jewellery. Reply to book a private showroom viewing with our jewellery specialist."
         ),
         "footer_text": "Reply STOP to unsubscribe from marketing messages.",
         "variable_definitions": ["customer_name"],
@@ -65,7 +66,7 @@ class TemplateService:
 
     @staticmethod
     def seed_default_templates(db: Session) -> None:
-        """Seed baseline Kanti Auto Parts message templates if registry is empty."""
+        """Seed or refresh baseline Maxis Gold Jewellery message templates."""
         now = datetime.now(timezone.utc)
         for tpl_data in DEFAULT_KAP_TEMPLATES:
             existing = (
@@ -83,6 +84,10 @@ class TemplateService:
                         last_synced_at=now,
                     )
                 )
+            elif existing.body_text and "Kanti Auto Parts" in existing.body_text:
+                existing.header_text = tpl_data["header_text"]
+                existing.body_text = tpl_data["body_text"]
+                existing.footer_text = tpl_data["footer_text"]
         db.commit()
 
     @staticmethod
@@ -194,6 +199,9 @@ class TemplateService:
                 if comp.get("type") == "BODY":
                     body_text = comp.get("text", "")
 
+            placeholder_matches = sorted(set(re.findall(r"\{\{(\d+)\}\}", body_text)))
+            inferred_vars = [f"param_{idx}" for idx in placeholder_matches]
+
             existing = (
                 db.query(MessageTemplate)
                 .filter(MessageTemplate.name == name, MessageTemplate.language == language)
@@ -206,6 +214,7 @@ class TemplateService:
                 existing.quality_score = quality
                 if body_text:
                     existing.body_text = body_text
+                    existing.variable_definitions = inferred_vars
                 existing.is_active = status == "APPROVED" and quality not in {"RED", "DISABLED"}
                 existing.last_synced_at = now
             else:
@@ -219,7 +228,7 @@ class TemplateService:
                         is_active=(status == "APPROVED"),
                         quality_score=quality,
                         body_text=body_text or f"Template {name}",
-                        variable_definitions=[],
+                        variable_definitions=inferred_vars,
                         last_synced_at=now,
                     )
                 )
